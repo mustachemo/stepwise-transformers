@@ -134,6 +134,8 @@ The primary goal is to produce code that is **clear, robust, maintainable, and P
 
 * **CLI Applications**: `typer` (where applicable)
 
+* **TUI Applications**: `textual` for terminal user interfaces
+
 * **Console Output**: `rich`
 
 * **Logging**: `loguru` (for advanced logging capabilities)
@@ -145,6 +147,17 @@ The primary goal is to produce code that is **clear, robust, maintainable, and P
 * **collections**: Use `collections` for specialized data structures like `defaultdict`, `Counter`, and `namedtuple`.
 
 * **concurrent.futures**: Use `concurrent.futures` for parallel execution of tasks. Use `ThreadPoolExecutor` for I/O-bound tasks and `ProcessPoolExecutor` for CPU-bound tasks.
+
+### Textual TUI Conventions
+
+* **Screen Classes**: Use descriptive names ending with `Screen` (e.g., `MainScreen`, `TutorialScreen`)
+* **Widget Classes**: Use descriptive names ending with `Widget` (e.g., `AttentionWidget`, `ModelWidget`)
+* **App Class**: Use `App` suffix for main application class (e.g., `TransformerApp`)
+* **Event Handling**: Use `@on` decorators for event handlers with descriptive method names
+* **Layout**: Use `Container`, `Horizontal`, `Vertical` for layout management
+* **Styling**: Use `rich` text formatting and CSS-like styling with Textual
+* **State Management**: Use `dataclasses` for screen state and configuration
+* **Reactive Patterns**: Implement reactive updates with `@on` decorators and `watch` methods
 
 
 

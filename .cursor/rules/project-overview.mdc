@@ -1,29 +1,39 @@
-# Stepwise Transformers Learning Project
+# Stepwise Transformers Learning TUI
 
-This project is dedicated to learning about transformers step by step. The goal is to understand transformer architecture, attention mechanisms, and implement them from scratch.
+This project is dedicated to learning about transformers step by step through an interactive Terminal User Interface (TUI) built with Textual. The goal is to create an educational application that guides users through transformer concepts, implementations, and experiments.
 
 ## Project Structure
-- `src/` - Source code for transformer implementations
-- `notebooks/` - Jupyter notebooks for experiments and learning
-- `tests/` - Unit tests for transformer components
+- `src/` - Source code for transformer implementations and TUI components
+- `tui/` - Textual TUI application and screens
+- `tests/` - Unit tests for transformer components and TUI
 - `docs/` - Documentation and learning notes
 - `data/` - Sample datasets for training and testing
+- `examples/` - Interactive examples and demonstrations
 
 ## Learning Objectives
-1. Understand attention mechanisms (self-attention, multi-head attention)
-2. Implement transformer encoder and decoder blocks
-3. Build a complete transformer model from scratch
-4. Train and evaluate transformer models
-5. Explore different transformer variants (BERT, GPT, etc.)
+1. Build an interactive TUI for learning transformers
+2. Implement transformer components with live visualization
+3. Create interactive tutorials and experiments
+4. Provide real-time model training and evaluation
+5. Enable hands-on exploration of transformer concepts
 
-## Key Concepts to Master
-- Positional encoding
-- Multi-head attention
-- Feed-forward networks
-- Layer normalization
-- Residual connections
-- Tokenization and vocabulary
-- Training strategies for transformers
+## Key Features
+- Interactive transformer component builder
+- Real-time attention visualization
+- Step-by-step tutorial system
+- Live model training interface
+- Interactive mathematical explanations
+- Progress tracking and achievements
+- Export capabilities for experiments
+
+## TUI Components
+- Main navigation dashboard
+- Component library browser
+- Interactive tutorials
+- Model builder interface
+- Training and evaluation screens
+- Visualization panels
+- Help and documentation viewer
 description:
 globs:
 alwaysApply: false

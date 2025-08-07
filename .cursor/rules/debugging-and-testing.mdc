@@ -2,7 +2,15 @@
 
 ## Common Issues and Solutions
 
-### 1. Attention Weight Issues
+### 1. TUI Rendering Issues
+**Problem**: Widgets not displaying correctly or layout broken
+**Solutions**:
+- Check CSS styling and theme configuration
+- Verify widget mounting and composition
+- Ensure proper event handling
+- Test with simple widgets first
+
+### 2. Attention Weight Issues
 **Problem**: Attention weights don't sum to 1 or are all equal
 **Solutions**:
 - Check softmax implementation
