@@ -1,39 +1,57 @@
-# Stepwise Transformers Learning TUI
+# Stepwise Transformers Learning with MLflow
 
-This project is dedicated to learning about transformers step by step through an interactive Terminal User Interface (TUI) built with Textual. The goal is to create an educational application that guides users through transformer concepts, implementations, and experiments.
+This project is dedicated to learning about transformers step by step through interactive MLflow experiments. The goal is to create an educational application that guides users through transformer concepts, implementations, and experiments using MLflow for experiment tracking and visualization.
 
 ## Project Structure
-- `src/` - Source code for transformer implementations and TUI components
-- `tui/` - Textual TUI application and screens
-- `tests/` - Unit tests for transformer components and TUI
+- `src/` - Source code for transformer implementations and MLflow experiments
+- `experiments/` - MLflow experiment configurations and results
+- `tests/` - Unit tests for transformer components and experiments
 - `docs/` - Documentation and learning notes
 - `data/` - Sample datasets for training and testing
 - `examples/` - Interactive examples and demonstrations
+- `models/` - Saved transformer models and checkpoints
+- `artifacts/` - MLflow artifacts including visualizations and logs
 
 ## Learning Objectives
-1. Build an interactive TUI for learning transformers
-2. Implement transformer components with live visualization
-3. Create interactive tutorials and experiments
-4. Provide real-time model training and evaluation
-5. Enable hands-on exploration of transformer concepts
+1. Build interactive MLflow experiments for learning transformers
+2. Implement transformer components with experiment tracking
+3. Create interactive tutorials and experiments with MLflow
+4. Provide real-time model training and evaluation tracking
+5. Enable hands-on exploration of transformer concepts through experiments
 
 ## Key Features
-- Interactive transformer component builder
-- Real-time attention visualization
-- Step-by-step tutorial system
-- Live model training interface
-- Interactive mathematical explanations
-- Progress tracking and achievements
-- Export capabilities for experiments
+- Interactive transformer component experiments with MLflow
+- Real-time attention visualization and tracking
+- Step-by-step tutorial system with experiment logging
+- Live model training interface with MLflow metrics
+- Interactive mathematical explanations with experiment tracking
+- Progress tracking and achievements through MLflow
+- Export capabilities for experiments and visualizations
 
-## TUI Components
-- Main navigation dashboard
-- Component library browser
-- Interactive tutorials
-- Model builder interface
-- Training and evaluation screens
-- Visualization panels
-- Help and documentation viewer
+## MLflow Experiment Components
+- Main experiment manager for transformer learning
+- Component library experiments with parameter tracking
+- Interactive tutorials with progress logging
+- Model builder experiments with configuration tracking
+- Training and evaluation experiments with metrics
+- Visualization experiments with artifact logging
+- Help and documentation with experiment examples
+
+## Experiment Management
+- MLflow experiment tracking and versioning
+- Real-time metric logging and visualization
+- Model artifact management and versioning
+- Experiment comparison and analysis tools
+- Automated experiment reproducibility
+- Collaborative experiment sharing
+
+## Interactive Features
+- Real-time experiment monitoring with MLflow UI
+- Interactive parameter adjustment with live tracking
+- Component testing with experiment logging
+- Data visualization with MLflow artifacts
+- Progress tracking through experiment completion
+- Export capabilities for results and visualizations
 description:
 globs:
 alwaysApply: false

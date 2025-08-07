@@ -1,25 +1,25 @@
-# Stepwise Transformers Learning TUI
+# Stepwise Transformers Learning with MLflow
 
-An interactive Terminal User Interface (TUI) application built with Textual for learning transformer architecture, attention mechanisms, and neural network concepts through hands-on experimentation and real-time visualization.
+An interactive experiment-based application built with MLflow for learning transformer architecture, attention mechanisms, and neural network concepts through hands-on experimentation and real-time visualization.
 
 ## 🎯 Project Overview
 
-This project aims to create an educational application that makes learning transformers accessible and engaging through an interactive terminal interface. Users can explore transformer components, visualize attention mechanisms, build models, and train them in real-time—all within a beautiful, responsive TUI.
+This project aims to create an educational application that makes learning transformers accessible and engaging through interactive MLflow experiments. Users can explore transformer components, visualize attention mechanisms, build models, and train them in real-time—all within a comprehensive experiment tracking environment.
 
 ## 🏗️ Architecture
 
 ### Core Components
 
-- **Interactive Tutorials**: Step-by-step guided learning with progress tracking
-- **Component Library**: Live transformer component exploration and testing
-- **Model Builder**: Drag-and-drop interface for assembling transformer models
-- **Training Interface**: Real-time training visualization with metrics
-- **Visualization Panels**: Attention heatmaps, architecture diagrams, and progress charts
-- **Experiment Management**: Save, load, and compare experiments
+- **Interactive Experiments**: Step-by-step guided learning with MLflow experiment tracking
+- **Component Library**: Live transformer component exploration and testing with experiment logging
+- **Model Builder**: Interactive interface for assembling transformer models with experiment tracking
+- **Training Interface**: Real-time training visualization with MLflow metrics
+- **Visualization Panels**: Attention heatmaps, architecture diagrams, and progress charts with artifact logging
+- **Experiment Management**: Save, load, and compare experiments using MLflow
 
 ### Technology Stack
 
-- **TUI Framework**: [Textual](https://textual.textualize.io/) for terminal user interface
+- **Experiment Tracking**: [MLflow](https://mlflow.org/) for experiment management and tracking
 - **Styling**: Rich library for text formatting and styling
 - **Logging**: Loguru for robust, structured logging
 - **Neural Networks**: PyTorch for transformer implementations
@@ -28,14 +28,14 @@ This project aims to create an educational application that makes learning trans
 
 ## 📋 Development Plan
 
-### Phase 1: TUI Foundation (Weeks 1-2)
+### Phase 1: MLflow Foundation (Weeks 1-2)
 
-#### Textual Framework Setup
-- [ ] Install and configure Textual framework
-- [ ] Create basic app structure with screens
-- [ ] Implement navigation and layout system
-- [ ] Set up styling and themes
-- [ ] Create basic widgets and components
+#### MLflow Setup and Configuration
+- [ ] Install and configure MLflow for experiment tracking
+- [ ] Create basic experiment structure with proper logging
+- [ ] Implement experiment management and versioning
+- [ ] Set up artifact storage and visualization
+- [ ] Create basic experiment templates and configurations
 
 #### Transformer Concepts Introduction
 - [ ] Read "Attention Is All You Need" paper
@@ -44,107 +44,107 @@ This project aims to create an educational application that makes learning trans
 - [ ] Study multi-head attention mechanism
 - [ ] Review transformer architecture overview
 
-### Phase 2: Interactive Components (Weeks 3-4)
+### Phase 2: Interactive Experiments (Weeks 3-4)
 
-#### TUI Component Development
-- [ ] Create interactive attention visualization widget
-- [ ] Implement positional encoding display widget
-- [ ] Build model architecture diagram widget
-- [ ] Develop training progress visualization
-- [ ] Create parameter adjustment controls
+#### MLflow Experiment Development
+- [ ] Create interactive attention experiment with MLflow tracking
+- [ ] Implement positional encoding experiment with parameter logging
+- [ ] Build model architecture experiment with configuration tracking
+- [ ] Develop training progress experiment with real-time metrics
+- [ ] Create parameter adjustment experiments with live tracking
 
 #### Transformer Component Integration
-- [ ] Implement sinusoidal positional encoding
-- [ ] Create single-head attention component
-- [ ] Extend to multi-head attention
-- [ ] Build feed-forward network component
-- [ ] Integrate components with TUI widgets
+- [ ] Implement sinusoidal positional encoding with MLflow logging
+- [ ] Create single-head attention experiment with metrics
+- [ ] Extend to multi-head attention experiments
+- [ ] Build feed-forward network experiments
+- [ ] Integrate components with MLflow experiment tracking
 
 ### Phase 3: Interactive Building Blocks (Weeks 5-6)
 
-#### TUI Model Builder
-- [ ] Create drag-and-drop model builder interface
-- [ ] Implement component connection system
-- [ ] Add parameter configuration panels
-- [ ] Build model validation system
-- [ ] Create model export functionality
+#### MLflow Model Builder Experiments
+- [ ] Create model builder experiment with component tracking
+- [ ] Implement component connection experiments
+- [ ] Add parameter configuration experiments
+- [ ] Build model validation experiments
+- [ ] Create model export experiments with artifact logging
 
 #### Transformer Block Integration
-- [ ] Implement encoder block with TUI controls
-- [ ] Create decoder block with masking controls
-- [ ] Add residual connection visualization
-- [ ] Implement layer normalization display
-- [ ] Build block interaction testing interface
+- [ ] Implement encoder block experiments with MLflow tracking
+- [ ] Create decoder block experiments with masking controls
+- [ ] Add residual connection experiments
+- [ ] Implement layer normalization experiments
+- [ ] Build block interaction testing experiments
 
 ### Phase 4: Complete Interactive Model (Weeks 7-8)
 
-#### TUI Training Interface
-- [ ] Create real-time training visualization
-- [ ] Implement loss and metric plotting
-- [ ] Add training control panel
-- [ ] Build model performance monitoring
+#### MLflow Training Interface
+- [ ] Create real-time training experiments with MLflow UI
+- [ ] Implement loss and metric plotting experiments
+- [ ] Add training control experiments
+- [ ] Build model performance monitoring experiments
 - [ ] Create experiment management system
 
 #### Full Transformer Integration
-- [ ] Implement complete transformer with TUI controls
-- [ ] Add embedding layer configuration
-- [ ] Create training loop with live updates
-- [ ] Implement model evaluation interface
+- [ ] Implement complete transformer experiments with MLflow
+- [ ] Add embedding layer configuration experiments
+- [ ] Create training loop experiments with live updates
+- [ ] Implement model evaluation experiments
 - [ ] Build experiment comparison tools
 
 ### Phase 5: Interactive Training and Evaluation (Weeks 9-10)
 
-#### TUI Data Management
-- [ ] Create dataset selection interface
-- [ ] Implement data visualization widgets
-- [ ] Build tokenization configuration panel
-- [ ] Add data preprocessing controls
-- [ ] Create data validation interface
+#### MLflow Data Management
+- [ ] Create dataset selection experiments
+- [ ] Implement data visualization experiments
+- [ ] Build tokenization configuration experiments
+- [ ] Add data preprocessing experiments
+- [ ] Create data validation experiments
 
 #### Interactive Training System
-- [ ] Implement real-time training monitoring
-- [ ] Create interactive hyperparameter tuning
-- [ ] Add training pause/resume controls
+- [ ] Implement real-time training monitoring experiments
+- [ ] Create interactive hyperparameter tuning experiments
+- [ ] Add training pause/resume experiments
 - [ ] Build experiment comparison interface
 - [ ] Implement training history management
 
-### Phase 6: Advanced TUI Features (Weeks 11-12)
+### Phase 6: Advanced MLflow Features (Weeks 11-12)
 
 #### Advanced Visualization
-- [ ] Implement 3D attention visualization
-- [ ] Create gradient flow animation
-- [ ] Build model performance dashboard
-- [ ] Add interactive debugging tools
-- [ ] Implement attention head analysis
+- [ ] Implement 3D attention visualization experiments
+- [ ] Create gradient flow animation experiments
+- [ ] Build model performance dashboard experiments
+- [ ] Add interactive debugging experiments
+- [ ] Implement attention head analysis experiments
 
 #### Advanced Interactions
-- [ ] Create custom widget development
-- [ ] Implement advanced event handling
-- [ ] Add plugin system for extensions
-- [ ] Build collaborative features
-- [ ] Create export/import functionality
+- [ ] Create custom experiment development
+- [ ] Implement advanced MLflow tracking
+- [ ] Add plugin system for experiment extensions
+- [ ] Build collaborative experiment features
+- [ ] Create export/import functionality for experiments
 
 ### Phase 7: Advanced Applications (Weeks 13+)
 
 #### Modern Transformer Variants
-- [ ] Create BERT architecture tutorial
-- [ ] Implement GPT architecture demo
-- [ ] Build T5 variant exploration
-- [ ] Add architecture comparison tools
+- [ ] Create BERT architecture experiment tutorials
+- [ ] Implement GPT architecture experiment demos
+- [ ] Build T5 variant exploration experiments
+- [ ] Add architecture comparison experiments
 
-#### Practical TUI Applications
-- [ ] Create text classification interface
-- [ ] Implement sequence-to-sequence demo
-- [ ] Build domain adaptation tools
-- [ ] Add model comparison dashboard
-- [ ] Create educational content system
+#### Practical MLflow Applications
+- [ ] Create text classification experiment interface
+- [ ] Implement sequence-to-sequence experiment demos
+- [ ] Build domain adaptation experiment tools
+- [ ] Add model comparison experiment dashboard
+- [ ] Create educational content experiment system
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Python 3.8+
-- Terminal with support for rich text rendering
+- MLflow for experiment tracking
 - Git for version control
 
 ### Installation
@@ -165,22 +165,20 @@ pip install -r requirements.txt
 ### Running the Application
 
 ```bash
-# Start the transformer learning TUI
+# Start the transformer learning experiments
 python -m src.main
+
+# View MLflow UI
+mlflow ui
 ```
 
-### Key Bindings
+### Key Commands
 
-- `1` - Navigate to Tutorials
-- `2` - Navigate to Components
-- `3` - Navigate to Model Builder
-- `4` - Navigate to Training
-- `5` - Navigate to Visualization
-- `h` - Show Help
-- `s` - Save Experiment
-- `l` - Load Experiment
-- `d` - Toggle Dark Mode
-- `q` - Quit Application
+- `python -m src.main` - Start the experiment manager
+- `mlflow ui` - Launch MLflow web interface
+- `mlflow experiments list` - List all experiments
+- `mlflow runs list` - List all experiment runs
+- `mlflow artifacts list` - List experiment artifacts
 
 ## 📁 Project Structure
 
@@ -188,29 +186,31 @@ python -m src.main
 stepwise-transformers/
 ├── src/                    # Source code for transformer implementations
 │   ├── components/         # Transformer component implementations
-│   ├── tui/               # Textual TUI application and screens
+│   ├── experiments/        # MLflow experiment configurations
 │   ├── utils/             # Utility functions and helpers
 │   └── main.py            # Application entry point
-├── tui/                   # TUI-specific components
-│   ├── screens/           # Screen implementations
-│   ├── widgets/           # Custom widget components
-│   └── styles/            # CSS styling files
-├── tests/                 # Unit tests for components and TUI
+├── experiments/            # MLflow experiment configurations and results
+│   ├── attention/         # Attention mechanism experiments
+│   ├── positional/        # Positional encoding experiments
+│   ├── training/          # Training experiments
+│   └── visualization/     # Visualization experiments
+├── tests/                 # Unit tests for components and experiments
 ├── docs/                  # Documentation and learning notes
 ├── data/                  # Sample datasets and experiments
 ├── examples/              # Interactive examples and demonstrations
 ├── logs/                  # Application logs
-├── experiments/           # Saved experiment configurations
+├── models/                # Saved transformer models and checkpoints
+├── artifacts/             # MLflow artifacts including visualizations
 └── .cursor/rules/         # Cursor Rules for development guidance
 ```
 
 ## 🎨 Features
 
 ### Interactive Learning
-- **Step-by-step tutorials** with progress tracking
-- **Real-time visualization** of attention mechanisms
-- **Interactive model building** with drag-and-drop interface
-- **Live training monitoring** with performance metrics
+- **Step-by-step experiments** with MLflow tracking
+- **Real-time visualization** of attention mechanisms with artifact logging
+- **Interactive model building** with experiment tracking
+- **Live training monitoring** with MLflow metrics
 
 ### Visualization Capabilities
 - **Attention weight heatmaps** for understanding attention patterns
@@ -234,6 +234,7 @@ This project follows strict Python coding standards:
 - **Logging**: Structured logging with Loguru for debugging
 - **Code Style**: PEP 8 compliance with 4-space indentation
 - **Testing**: Comprehensive unit tests for all components
+- **Experiment Tracking**: MLflow for experiment management and versioning
 
 ## 🤝 Contributing
 
@@ -249,18 +250,18 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **Papers**: "Attention Is All You Need", "BERT", "GPT" papers
 - **Books**: "Deep Learning" by Goodfellow, Bengio, Courville
 - **Online Courses**: CS224N (Stanford), CS182 (Berkeley)
-- **TUI Frameworks**: Textual documentation, Rich library guides
+- **Experiment Tracking**: MLflow documentation and tutorials
 - **Implementations**: PyTorch tutorials, Hugging Face transformers
 
 ## 🎯 Success Metrics
 
-- [ ] Can build interactive TUI for transformer learning
-- [ ] Can implement transformer components with live visualization
-- [ ] Can create educational tutorials and experiments
-- [ ] Can provide real-time model training and evaluation
-- [ ] Can enable hands-on exploration of transformer concepts
-- [ ] Can develop custom widgets for transformer visualization
-- [ ] Can create engaging educational content through TUI
+- [ ] Can build interactive MLflow experiments for transformer learning
+- [ ] Can implement transformer components with experiment tracking
+- [ ] Can create educational tutorials and experiments with MLflow
+- [ ] Can provide real-time model training and evaluation tracking
+- [ ] Can enable hands-on exploration of transformer concepts through experiments
+- [ ] Can develop custom experiments for transformer visualization
+- [ ] Can create engaging educational content through MLflow experiments
 
 ## 📄 License
 
@@ -268,11 +269,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Textual](https://textual.textualize.io/) for the amazing TUI framework
+- [MLflow](https://mlflow.org/) for the amazing experiment tracking framework
 - [Rich](https://rich.readthedocs.io/) for beautiful terminal output
 - [PyTorch](https://pytorch.org/) for neural network capabilities
 - The transformer research community for foundational work
 
 ---
 
-**Ready to dive into transformers? Start your learning journey with our interactive TUI! 🚀**
+**Ready to dive into transformers? Start your learning journey with our interactive MLflow experiments! 🚀**

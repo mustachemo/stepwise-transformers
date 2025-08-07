@@ -134,7 +134,7 @@ The primary goal is to produce code that is **clear, robust, maintainable, and P
 
 * **CLI Applications**: `typer` (where applicable)
 
-* **TUI Applications**: `textual` for terminal user interfaces
+* **Experiment Tracking**: `mlflow` for experiment management and tracking
 
 * **Console Output**: `rich`
 
@@ -148,16 +148,17 @@ The primary goal is to produce code that is **clear, robust, maintainable, and P
 
 * **concurrent.futures**: Use `concurrent.futures` for parallel execution of tasks. Use `ThreadPoolExecutor` for I/O-bound tasks and `ProcessPoolExecutor` for CPU-bound tasks.
 
-### Textual TUI Conventions
+### MLflow Experiment Conventions
 
-* **Screen Classes**: Use descriptive names ending with `Screen` (e.g., `MainScreen`, `TutorialScreen`)
-* **Widget Classes**: Use descriptive names ending with `Widget` (e.g., `AttentionWidget`, `ModelWidget`)
-* **App Class**: Use `App` suffix for main application class (e.g., `TransformerApp`)
-* **Event Handling**: Use `@on` decorators for event handlers with descriptive method names
-* **Layout**: Use `Container`, `Horizontal`, `Vertical` for layout management
-* **Styling**: Use `rich` text formatting and CSS-like styling with Textual
-* **State Management**: Use `dataclasses` for screen state and configuration
-* **Reactive Patterns**: Implement reactive updates with `@on` decorators and `watch` methods
+* **Experiment Classes**: Use descriptive names ending with `Experiment` (e.g., `AttentionExperiment`, `TrainingExperiment`)
+* **Manager Classes**: Use descriptive names ending with `Manager` (e.g., `ExperimentManager`, `ModelManager`)
+* **App Class**: Use `Manager` suffix for main application class (e.g., `TransformerExperimentManager`)
+* **Experiment Handling**: Use `mlflow.start_run()` context managers for experiment tracking
+* **Parameter Logging**: Use `mlflow.log_param()` for experiment parameters
+* **Metric Logging**: Use `mlflow.log_metric()` for experiment metrics
+* **Artifact Logging**: Use `mlflow.log_artifact()` for experiment artifacts
+* **State Management**: Use `dataclasses` for experiment state and configuration
+* **Reactive Patterns**: Implement reactive updates with MLflow tracking and real-time monitoring
 
 
 
@@ -187,7 +188,7 @@ from dataclasses import dataclass
 from itertools import islice
 from pathlib import Path
 from time import monotonic
-from typing import Iterator, List, Optional, Tuple
+from typing import Iterator, Optional
 
 import numpy as np
 import typer
@@ -197,7 +198,7 @@ from rich.progress import Progress
 from rich.table import Table
 
 # =============================== Constants =================================== #
-SUPPORTED_IMAGE_EXTENSIONS: Tuple[str, ...] = (".png", ".jpg", ".jpeg")
+SUPPORTED_IMAGE_EXTENSIONS: tuple[str, ...] = (".png", ".jpg", ".jpeg")
 
 # =============================== Configuration =============================== #
 # * Use Rich for console output and Loguru for file logging.
@@ -376,7 +377,7 @@ def process(
     if limit is not None:
         console.print(f"[yellow]Limiting processing to the first {limit} images.[/yellow]")
         image_paths_gen = islice(image_paths_gen, limit)
-    image_paths: List[Path] = list(image_paths_gen)
+    image_paths: list[Path] = list(image_paths_gen)
 
     if not image_paths:
         console.print("[yellow]No supported image files found to process.[/yellow]")
