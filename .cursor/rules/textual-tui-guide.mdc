@@ -85,7 +85,7 @@ class TransformerApp(App):
         super().__init__()
         self.config_path = config_path or Path(DEFAULT_CONFIG_PATH)
         self.app_config: Optional[AppConfig] = None
-        
+
         try:
             self._load_configuration()
             self._setup_directories()
