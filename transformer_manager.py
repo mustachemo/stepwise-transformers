@@ -34,6 +34,7 @@ logger.add(
     format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
 )
 
+
 # =============================== Data Structures ============================= #
 @dataclass
 class TrainingConfig:
@@ -166,14 +167,16 @@ class TransformerManager:
                 mlflow.log_param("description", description)
                 mlflow.log_param("run_type", "transformer_training")
                 mlflow.log_param("timestamp", str(mlflow.start_time))
-                
+
                 logger.info(f"Started new training run: {run_name}")
                 return run.info.run_id
         except Exception as exc:
             logger.error(f"Failed to start training run: {exc}")
             raise RuntimeError(f"Training run creation failed: {exc}")
 
-    def log_component_parameters(self, component_name: str, parameters: Dict[str, Any]) -> None:
+    def log_component_parameters(
+        self, component_name: str, parameters: Dict[str, Any]
+    ) -> None:
         """Log transformer component parameters and metrics.
 
         Args:
@@ -186,7 +189,7 @@ class TransformerManager:
         try:
             for key, value in parameters.items():
                 mlflow.log_param(f"{component_name}_{key}", value)
-            
+
             logger.info(f"Logged {component_name} component parameters")
         except Exception as exc:
             logger.error(f"Failed to log component: {exc}")
@@ -205,7 +208,7 @@ class TransformerManager:
         try:
             for metric_name, metric_value in metrics.items():
                 mlflow.log_metric(metric_name, metric_value, step=step)
-            
+
             logger.info(f"Logged training metrics at step {step}")
         except Exception as exc:
             logger.error(f"Failed to log training metrics: {exc}")
@@ -228,7 +231,9 @@ class TransformerManager:
             logger.error(f"Failed to save model: {exc}")
             raise RuntimeError(f"Model saving failed: {exc}")
 
-    def log_attention_visualization(self, attention_weights: torch.Tensor, step: int) -> None:
+    def log_attention_visualization(
+        self, attention_weights: torch.Tensor, step: int
+    ) -> None:
         """Log attention weight visualization.
 
         Args:
@@ -243,7 +248,7 @@ class TransformerManager:
             attention_path = f"artifacts/attention_step_{step}.png"
             # TODO: Implement attention weight visualization
             mlflow.log_artifact(attention_path, f"attention_visualizations/step_{step}")
-            
+
             logger.info(f"Logged attention visualization for step {step}")
         except Exception as exc:
             logger.error(f"Failed to log attention visualization: {exc}")
@@ -305,25 +310,31 @@ class TransformerManager:
             import subprocess
             import webbrowser
             import time
-            
-            self.console.print("[bold blue]Starting MLflow UI for monitoring...[/bold blue]")
-            
+
+            self.console.print(
+                "[bold blue]Starting MLflow UI for monitoring...[/bold blue]"
+            )
+
             # Start MLflow UI
-            process = subprocess.Popen(["mlflow", "ui"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            
+            process = subprocess.Popen(
+                ["mlflow", "ui"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+
             # Wait a moment for the server to start
             time.sleep(2)
-            
+
             # Open browser
             webbrowser.open("http://localhost:5000")
-            
+
             self.console.print("[bold green]✅ MLflow UI launched![/bold green]")
-            self.console.print("Open http://localhost:5000 in your browser to monitor training")
+            self.console.print(
+                "Open http://localhost:5000 in your browser to monitor training"
+            )
             self.console.print("Press Ctrl+C to stop the monitoring server")
-            
+
             # Wait for user to stop
             process.wait()
-            
+
         except KeyboardInterrupt:
             self.console.print("\n[bold yellow]Stopping MLflow UI...[/bold yellow]")
             process.terminate()
