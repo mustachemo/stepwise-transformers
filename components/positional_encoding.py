@@ -49,8 +49,10 @@ class PositionalEncodingModule(BaseModule):
                 # Create positional encoding
                 pe = torch.zeros(seq_length, d_model)
                 position = torch.arange(0, seq_length).unsqueeze(1).float()
-                div_term = torch.exp(torch.arange(0, d_model, 2).float() * 
-                                   -(torch.log(torch.tensor(10000.0)) / d_model))
+                div_term = torch.exp(
+                    torch.arange(0, d_model, 2).float()
+                    * -(torch.log(torch.tensor(10000.0)) / d_model)
+                )
 
                 pe[:, 0::2] = torch.sin(position * div_term)
                 pe[:, 1::2] = torch.cos(position * div_term)
@@ -100,7 +102,9 @@ class PositionalEncodingModule(BaseModule):
             logger.error(f"Learned positional encoding computation failed: {exc}")
             raise RuntimeError(f"Learned positional encoding computation failed: {exc}")
 
-    def relative_encoding(self, seq_length: int, d_model: int, max_relative_position: int = 32) -> torch.Tensor:
+    def relative_encoding(
+        self, seq_length: int, d_model: int, max_relative_position: int = 32
+    ) -> torch.Tensor:
         """Compute relative positional encoding.
 
         Args:
@@ -135,9 +139,13 @@ class PositionalEncodingModule(BaseModule):
 
         except Exception as exc:
             logger.error(f"Relative positional encoding computation failed: {exc}")
-            raise RuntimeError(f"Relative positional encoding computation failed: {exc}")
+            raise RuntimeError(
+                f"Relative positional encoding computation failed: {exc}"
+            )
 
-    def forward(self, seq_length: int, d_model: int, encoding_type: str = "sinusoidal") -> torch.Tensor:
+    def forward(
+        self, seq_length: int, d_model: int, encoding_type: str = "sinusoidal"
+    ) -> torch.Tensor:
         """Forward pass through the positional encoding module.
 
         Args:

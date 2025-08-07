@@ -1,4 +1,4 @@
-"""Base module class for transformer learning components.
+"""Base component class for transformer learning components.
 
 This module provides the base class for all transformer learning components
 with common functionality and MLflow integration.
@@ -13,14 +13,14 @@ import mlflow
 from loguru import logger
 
 
-class BaseModule(ABC):
+class BaseComponent(ABC):
     """Base class for all transformer learning components."""
 
     def __init__(self, manager):
-        """Initialize the base module.
+        """Initialize the base component.
 
         Args:
-            manager: The main experiment manager instance.
+            manager: The main transformer manager instance.
         """
         self.manager = manager
         self.current_run: Optional[mlflow.entities.Run] = None
@@ -41,8 +41,8 @@ class BaseModule(ABC):
         try:
             self.current_run = mlflow.start_run(run_name=run_name)
             mlflow.log_param("description", description)
-            mlflow.log_param("module_type", self.__class__.__name__)
-
+            mlflow.log_param("component_type", self.__class__.__name__)
+            
             logger.info(f"Started new run: {run_name}")
             return self.current_run.info.run_id
         except Exception as exc:
@@ -75,7 +75,7 @@ class BaseModule(ABC):
         try:
             for key, value in parameters.items():
                 mlflow.log_param(key, value)
-
+            
             logger.info(f"Logged {len(parameters)} parameters")
         except Exception as exc:
             logger.error(f"Failed to log parameters: {exc}")
@@ -96,7 +96,7 @@ class BaseModule(ABC):
         try:
             for metric_name, metric_value in metrics.items():
                 mlflow.log_metric(metric_name, metric_value, step=step)
-
+            
             logger.info(f"Logged {len(metrics)} metrics")
         except Exception as exc:
             logger.error(f"Failed to log metrics: {exc}")
@@ -123,16 +123,16 @@ class BaseModule(ABC):
 
     @abstractmethod
     def forward(self, *args, **kwargs) -> Any:
-        """Forward pass through the module.
+        """Forward pass through the component.
 
         This method should be implemented by subclasses to define
-        the specific module logic.
+        the specific component logic.
 
         Args:
             *args: Positional arguments for the forward pass.
             **kwargs: Keyword arguments for the forward pass.
 
         Returns:
-            Any: The module output.
+            Any: The component output.
         """
         pass

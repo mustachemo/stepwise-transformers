@@ -1,4 +1,4 @@
-"""Attention mechanism modules for transformer learning.
+"""Attention mechanism components for transformer learning.
 
 This module provides components for learning about attention mechanisms
 in transformers through interactive MLflow tracking.
@@ -14,17 +14,17 @@ import torch.nn as nn
 from loguru import logger
 from rich.console import Console
 
-from .base import BaseModule
+from .base import BaseComponent
 
 
-class AttentionModule(BaseModule):
+class AttentionModule(BaseComponent):
     """Interactive attention mechanism components."""
 
     def __init__(self, manager):
         """Initialize the attention module.
 
         Args:
-            manager: The main experiment manager instance.
+            manager: The main transformer manager instance.
         """
         super().__init__(manager)
         self.console = Console()

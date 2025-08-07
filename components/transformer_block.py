@@ -29,12 +29,12 @@ class TransformerBlockModule(BaseModule):
         self.console = Console()
 
     def encoder_block(
-        self, 
-        input_tensor: torch.Tensor, 
-        d_model: int, 
-        num_heads: int, 
-        d_ff: int, 
-        dropout: float = 0.1
+        self,
+        input_tensor: torch.Tensor,
+        d_model: int,
+        num_heads: int,
+        d_ff: int,
+        dropout: float = 0.1,
     ) -> torch.Tensor:
         """Compute transformer encoder block.
 
@@ -70,7 +70,9 @@ class TransformerBlockModule(BaseModule):
                 normalized_output = self._layer_norm(residual_output, d_model)
 
                 # Feed-forward network
-                ff_output = self._feed_forward(normalized_output, d_model, d_ff, dropout)
+                ff_output = self._feed_forward(
+                    normalized_output, d_model, d_ff, dropout
+                )
 
                 # Add & Norm
                 final_output = normalized_output + ff_output
@@ -88,13 +90,13 @@ class TransformerBlockModule(BaseModule):
             raise RuntimeError(f"Encoder block computation failed: {exc}")
 
     def decoder_block(
-        self, 
-        input_tensor: torch.Tensor, 
+        self,
+        input_tensor: torch.Tensor,
         encoder_output: torch.Tensor,
-        d_model: int, 
-        num_heads: int, 
-        d_ff: int, 
-        dropout: float = 0.1
+        d_model: int,
+        num_heads: int,
+        d_ff: int,
+        dropout: float = 0.1,
     ) -> torch.Tensor:
         """Compute transformer decoder block.
 
@@ -141,7 +143,9 @@ class TransformerBlockModule(BaseModule):
                 normalized_output = self._layer_norm(residual_output, d_model)
 
                 # Feed-forward network
-                ff_output = self._feed_forward(normalized_output, d_model, d_ff, dropout)
+                ff_output = self._feed_forward(
+                    normalized_output, d_model, d_ff, dropout
+                )
 
                 # Add & Norm
                 final_output = normalized_output + ff_output
@@ -159,63 +163,51 @@ class TransformerBlockModule(BaseModule):
             raise RuntimeError(f"Decoder block computation failed: {exc}")
 
     def _multi_head_attention(
-        self, 
-        x: torch.Tensor, 
-        d_model: int, 
-        num_heads: int, 
-        dropout: float
+        self, x: torch.Tensor, d_model: int, num_heads: int, dropout: float
     ) -> torch.Tensor:
         """Compute multi-head attention."""
         # Implementation details
         d_k = d_model // num_heads
-        attention_scores = torch.matmul(x, x.transpose(-2, -1)) / (d_k ** 0.5)
+        attention_scores = torch.matmul(x, x.transpose(-2, -1)) / (d_k**0.5)
         attention_weights = F.softmax(attention_scores, dim=-1)
         attention_weights = F.dropout(attention_weights, dropout)
         return torch.matmul(attention_weights, x)
 
     def _masked_multi_head_attention(
-        self, 
-        x: torch.Tensor, 
-        d_model: int, 
-        num_heads: int, 
-        dropout: float
+        self, x: torch.Tensor, d_model: int, num_heads: int, dropout: float
     ) -> torch.Tensor:
         """Compute masked multi-head attention."""
         # Implementation details
         d_k = d_model // num_heads
-        attention_scores = torch.matmul(x, x.transpose(-2, -1)) / (d_k ** 0.5)
-        
+        attention_scores = torch.matmul(x, x.transpose(-2, -1)) / (d_k**0.5)
+
         # Apply causal mask
         seq_len = x.size(1)
         mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1).bool()
         attention_scores = attention_scores.masked_fill(mask, -1e9)
-        
+
         attention_weights = F.softmax(attention_scores, dim=-1)
         attention_weights = F.dropout(attention_weights, dropout)
         return torch.matmul(attention_weights, x)
 
     def _cross_attention(
-        self, 
-        query: torch.Tensor, 
-        key_value: torch.Tensor, 
-        d_model: int, 
-        num_heads: int, 
-        dropout: float
+        self,
+        query: torch.Tensor,
+        key_value: torch.Tensor,
+        d_model: int,
+        num_heads: int,
+        dropout: float,
     ) -> torch.Tensor:
         """Compute cross-attention."""
         # Implementation details
         d_k = d_model // num_heads
-        attention_scores = torch.matmul(query, key_value.transpose(-2, -1)) / (d_k ** 0.5)
+        attention_scores = torch.matmul(query, key_value.transpose(-2, -1)) / (d_k**0.5)
         attention_weights = F.softmax(attention_scores, dim=-1)
         attention_weights = F.dropout(attention_weights, dropout)
         return torch.matmul(attention_weights, key_value)
 
     def _feed_forward(
-        self, 
-        x: torch.Tensor, 
-        d_model: int, 
-        d_ff: int, 
-        dropout: float
+        self, x: torch.Tensor, d_model: int, d_ff: int, dropout: float
     ) -> torch.Tensor:
         """Compute feed-forward network."""
         # Implementation details
@@ -227,13 +219,13 @@ class TransformerBlockModule(BaseModule):
         return F.layer_norm(x, [d_model])
 
     def forward(
-        self, 
-        input_tensor: torch.Tensor, 
-        d_model: int, 
-        num_heads: int, 
-        d_ff: int, 
+        self,
+        input_tensor: torch.Tensor,
+        d_model: int,
+        num_heads: int,
+        d_ff: int,
         dropout: float = 0.1,
-        block_type: str = "encoder"
+        block_type: str = "encoder",
     ) -> torch.Tensor:
         """Forward pass through the transformer block module.
 
@@ -253,6 +245,8 @@ class TransformerBlockModule(BaseModule):
         elif block_type == "decoder":
             # For decoder, we need encoder output as well
             encoder_output = torch.randn_like(input_tensor)  # Placeholder
-            return self.decoder_block(input_tensor, encoder_output, d_model, num_heads, d_ff, dropout)
+            return self.decoder_block(
+                input_tensor, encoder_output, d_model, num_heads, d_ff, dropout
+            )
         else:
             raise ValueError(f"Unknown block type: {block_type}")
