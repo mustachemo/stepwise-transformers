@@ -1,0 +1,32 @@
+[project]
+name = "stepwise-transformers"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.2.1",
+    "loguru>=0.7.3",
+    "matplotlib>=3.10.5",
+    "mlflow>=3.2.0",
+    "numpy>=2.3.2",
+    "pandas>=2.3.1",
+    "plotly>=6.2.0",
+    "pyyaml>=6.0.2",
+    "rich>=14.1.0",
+    "scikit-learn>=1.7.1",
+    "seaborn>=0.13.2",
+    "torch>=2.8.0",
+    "torchaudio>=2.8.0",
+    "torchvision>=0.23.0",
+    "typer>=0.16.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "mypy>=1.17.1",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.7",
+]
