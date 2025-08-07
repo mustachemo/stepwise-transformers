@@ -15,6 +15,6 @@ from .experiments.transformer_block import TransformerBlockModule
 __all__ = [
     "TransformerExperimentManager",
     "AttentionModule",
-    "PositionalEncodingModule", 
+    "PositionalEncodingModule",
     "TransformerBlockModule",
 ]

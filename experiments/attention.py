@@ -30,10 +30,7 @@ class AttentionModule(BaseModule):
         self.console = Console()
 
     def single_head_attention(
-        self, 
-        query: torch.Tensor, 
-        key: torch.Tensor, 
-        value: torch.Tensor
+        self, query: torch.Tensor, key: torch.Tensor, value: torch.Tensor
     ) -> torch.Tensor:
         """Compute single-head attention.
 
@@ -61,14 +58,12 @@ class AttentionModule(BaseModule):
                 output = torch.matmul(attention_weights, value)
 
                 # Log attention weights visualization
-                self.manager.log_attention_visualization(
-                    attention_weights, step=0
-                )
+                self.manager.log_attention_visualization(attention_weights, step=0)
 
                 # Log metrics
                 mlflow.log_metric(
-                    "attention_entropy", 
-                    -torch.sum(attention_weights * torch.log(attention_weights + 1e-8))
+                    "attention_entropy",
+                    -torch.sum(attention_weights * torch.log(attention_weights + 1e-8)),
                 )
                 mlflow.log_metric("output_norm", torch.norm(output))
 
@@ -80,12 +75,12 @@ class AttentionModule(BaseModule):
             raise RuntimeError(f"Attention computation failed: {exc}")
 
     def multi_head_attention(
-        self, 
-        num_heads: int, 
-        d_model: int, 
-        query: torch.Tensor, 
-        key: torch.Tensor, 
-        value: torch.Tensor
+        self,
+        num_heads: int,
+        d_model: int,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch.Tensor,
     ) -> torch.Tensor:
         """Compute multi-head attention.
 
@@ -121,9 +116,7 @@ class AttentionModule(BaseModule):
                 attention_outputs = []
                 for head in range(num_heads):
                     head_output = self.single_head_attention(
-                        query_heads[:, head], 
-                        key_heads[:, head], 
-                        value_heads[:, head]
+                        query_heads[:, head], key_heads[:, head], value_heads[:, head]
                     )
                     attention_outputs.append(head_output)
 
@@ -142,11 +135,11 @@ class AttentionModule(BaseModule):
             raise RuntimeError(f"Multi-head attention computation failed: {exc}")
 
     def scaled_dot_product_attention(
-        self, 
-        query: torch.Tensor, 
-        key: torch.Tensor, 
-        value: torch.Tensor, 
-        mask: Optional[torch.Tensor] = None
+        self,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch.Tensor,
+        mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Compute scaled dot-product attention.
 
@@ -172,18 +165,20 @@ class AttentionModule(BaseModule):
 
                 # Compute scaled dot-product attention
                 d_k = query.size(-1)
-                scores = torch.matmul(query, key.transpose(-2, -1)) / (d_k ** 0.5)
-                
+                scores = torch.matmul(query, key.transpose(-2, -1)) / (d_k**0.5)
+
                 if mask is not None:
                     scores = scores.masked_fill(mask == 0, -1e9)
-                
+
                 attention_weights = torch.softmax(scores, dim=-1)
                 output = torch.matmul(attention_weights, value)
 
                 # Log metrics
                 mlflow.log_metric("d_k", d_k)
-                mlflow.log_metric("attention_entropy", 
-                                -torch.sum(attention_weights * torch.log(attention_weights + 1e-8)))
+                mlflow.log_metric(
+                    "attention_entropy",
+                    -torch.sum(attention_weights * torch.log(attention_weights + 1e-8)),
+                )
                 mlflow.log_metric("output_norm", torch.norm(output))
 
                 logger.info("Scaled dot-product attention computation completed")
@@ -191,7 +186,9 @@ class AttentionModule(BaseModule):
 
         except Exception as exc:
             logger.error(f"Scaled dot-product attention computation failed: {exc}")
-            raise RuntimeError(f"Scaled dot-product attention computation failed: {exc}")
+            raise RuntimeError(
+                f"Scaled dot-product attention computation failed: {exc}"
+            )
 
     def forward(self, *args, **kwargs) -> torch.Tensor:
         """Forward pass through the attention module.

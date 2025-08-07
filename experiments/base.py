@@ -42,7 +42,7 @@ class BaseModule(ABC):
             self.current_run = mlflow.start_run(run_name=run_name)
             mlflow.log_param("description", description)
             mlflow.log_param("module_type", self.__class__.__name__)
-            
+
             logger.info(f"Started new run: {run_name}")
             return self.current_run.info.run_id
         except Exception as exc:
@@ -75,13 +75,15 @@ class BaseModule(ABC):
         try:
             for key, value in parameters.items():
                 mlflow.log_param(key, value)
-            
+
             logger.info(f"Logged {len(parameters)} parameters")
         except Exception as exc:
             logger.error(f"Failed to log parameters: {exc}")
             raise RuntimeError(f"Parameter logging failed: {exc}")
 
-    def log_metrics(self, metrics: Dict[str, float], step: Optional[int] = None) -> None:
+    def log_metrics(
+        self, metrics: Dict[str, float], step: Optional[int] = None
+    ) -> None:
         """Log metrics to MLflow.
 
         Args:
@@ -94,13 +96,15 @@ class BaseModule(ABC):
         try:
             for metric_name, metric_value in metrics.items():
                 mlflow.log_metric(metric_name, metric_value, step=step)
-            
+
             logger.info(f"Logged {len(metrics)} metrics")
         except Exception as exc:
             logger.error(f"Failed to log metrics: {exc}")
             raise RuntimeError(f"Metric logging failed: {exc}")
 
-    def log_artifact(self, local_path: str, artifact_path: Optional[str] = None) -> None:
+    def log_artifact(
+        self, local_path: str, artifact_path: Optional[str] = None
+    ) -> None:
         """Log an artifact to MLflow.
 
         Args:
