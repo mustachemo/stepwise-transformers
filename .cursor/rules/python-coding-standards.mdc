@@ -1,0 +1,432 @@
+### Guiding Principles
+
+
+
+The primary goal is to produce code that is **clear, robust, maintainable, and Pythonic**.
+
+* **Clarity over cleverness**: Write code that is easy to understand.
+
+* **Self-documenting**: Strive for descriptive names and logical structure that minimizes the need for explanatory comments.
+
+* **Robustness**: Anticipate and handle potential errors gracefully.
+
+
+
+---
+
+
+
+### Style & Formatting
+
+
+
+#### Naming Conventions
+
+* **Variables & Functions**: Use descriptive, `snake_case` names. Avoid unclear abbreviations. Domain-specific abbreviations like `img` (image), `rso` (Resident Space Object), and `bg` (background) are acceptable if they enhance readability.
+
+* **Constants**: Use `ALL_CAPS_SNAKE_CASE` (Screaming Snake Case).
+
+
+
+#### Code Structure
+
+* **Indentation**: Use 4 spaces per indentation level.
+
+* **Nesting**: Avoid deeply nested logic. Decompose complex blocks into smaller, more focused functions.
+
+* **Line Length**: Keep lines under 88 characters to align with modern standards (e.g., Black).
+
+* **Imports**: Group imports in the following order: standard library, third-party packages, and local application/library specific imports. Sort each group alphabetically.
+
+* **Section Separators**: Use a consistent comment style to break up large files into logical sections.
+
+    ```python
+
+    # =============================== Constants/Functions ================================= #
+
+    # --------------------------------- Complex Logic -------------------------------- #
+
+    ```
+
+
+
+---
+
+
+
+### Documentation & Comments
+
+
+
+#### Docstrings
+
+* All classes, functions, and methods must have a docstring that follows the **Google Python Style Guide**.
+
+* Use triple double-quotes (`"""Docstring content..."""`). The summary line should be on the same line as the opening quotes.
+
+* Include `Args:`, `Returns:`, and `Raises:` sections where applicable.
+
+
+
+#### Inline & Block Comments
+
+* Use inline comments sparingly, only to clarify complex or non-obvious logic.
+
+* Employ the "Better Comments" style for annotations to improve readability:
+
+    ```python
+
+    # * Very important information is highlighted.
+
+    # ? This is a question or clarification needed.
+
+    # ! This is a warning or something to be cautious about.
+
+    # TODO: This is a task that needs to be completed.
+
+    ```
+
+
+
+---
+
+
+
+### Code Patterns
+
+
+
+#### Error Handling
+
+* Handle exceptions specifically (e.g., `try...except FileNotFoundError`). Avoid catching generic `Exception` unless it's a last resort and is re-raised or logged with context.
+
+* Use `try...except` blocks only for code where exceptions are expected and can be handled meaningfully. Do not use them for regular control flow.
+
+
+
+#### Type Hinting
+
+* All function and method signatures, as well as variable declarations where appropriate, must include type hints using standard types such as 'int', 'float', 'str', 'bool', 'list', 'dict', and 'tuple' and the `typing` module when necessary (e.g., when using `Optional`).
+
+
+
+#### Language Features
+
+* **File Paths**: Use the `pathlib` module for all filesystem path manipulations to ensure cross-platform compatibility.
+
+* **Configuration**: Avoid magic strings and numbers. Define them as constants or parameterize them.
+
+* **String Formatting**: Use f-strings (`f"..."`) for all string formatting.
+
+* **Yields**: Use `yield` for generators when returning a sequence of items, especially in I/O-bound operations.
+
+
+
+---
+
+
+
+### Recommended Libraries
+
+* **Numerical Operations**: `numpy`
+
+* **File Paths**: `pathlib`
+
+* **CLI Applications**: `typer` (where applicable)
+
+* **Console Output**: `rich`
+
+* **Logging**: `loguru` (for advanced logging capabilities)
+
+* **dataclasses**: Use `dataclasses` for simple data structures to improve readability and maintainability.
+
+* **itertools**: Use `itertools` for efficient looping and combinatorial operations.
+
+* **collections**: Use `collections` for specialized data structures like `defaultdict`, `Counter`, and `namedtuple`.
+
+* **concurrent.futures**: Use `concurrent.futures` for parallel execution of tasks. Use `ThreadPoolExecutor` for I/O-bound tasks and `ProcessPoolExecutor` for CPU-bound tasks.
+
+
+
+---
+
+
+
+### Example Code
+
+```python
+"""CLI utilities for mock image processing.
+
+This example demonstrates best practices including:
+- **Typer** for the command-line interface.
+- **Rich** for styled console output, progress bars, and tables.
+- **Loguru** for robust, file-based logging.
+- **itertools** for efficient generator slicing.
+- **collections** for specialized data aggregation.
+- **Dataclasses** for structured data handling.
+- **Generators (`yield`)** for memory-efficient file discovery.
+- **concurrent.futures** for parallel processing.
+"""
+import sys
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
+from itertools import islice
+from pathlib import Path
+from time import monotonic
+from typing import Iterator, List, Optional, Tuple
+
+import numpy as np
+import typer
+from loguru import logger
+from rich.console import Console
+from rich.progress import Progress
+from rich.table import Table
+
+# =============================== Constants =================================== #
+SUPPORTED_IMAGE_EXTENSIONS: Tuple[str, ...] = (".png", ".jpg", ".jpeg")
+
+# =============================== Configuration =============================== #
+# * Use Rich for console output and Loguru for file logging.
+console = Console(stderr=True)  # Use stderr for logs/errors to not pollute stdout.
+logger.remove()  # Remove default handler to configure our own.
+logger.add(
+    "logs/process_{time}.log",
+    level="INFO",
+    rotation="10 MB",
+    retention="10 days",
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
+)
+logger.add(sys.stderr, level="WARNING")  # Also print warnings and errors to console.
+
+
+# =============================== Data Structures ============================= #
+@dataclass
+class ProcessingResult:
+    """Holds the outcome of processing a single image."""
+
+    filename: str
+    status: str
+    details: str
+    duration: float
+
+
+# ============================ Processing Utilities =========================== #
+class ImageProcessor:
+    """Discovers, (mock-)transforms, and saves images."""
+
+    def __init__(self, base_input_dir: Path, base_output_dir: Path) -> None:
+        """Initializes the processor and ensures directories exist.
+
+        Args:
+            base_input_dir: Directory containing source images.
+            base_output_dir: Parent directory for processed images.
+
+        Raises:
+            OSError: If the output directory cannot be created.
+        """
+        self.base_input_dir = base_input_dir
+        self.output_dir = base_output_dir / "processed_images"
+
+        try:
+            # ? Why use exist_ok=True? It prevents an error if the directory already exists.
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Output directory ensured at: {self.output_dir}")
+        except OSError as e:
+            logger.error(f"Failed to create output directory: {e}")
+            raise
+
+    def find_images(self) -> Iterator[Path]:
+        """Discovers and yields supported image files from the input directory.
+
+        This method uses a generator (`yield`) to efficiently handle large numbers
+        of files without loading all paths into memory at once.
+
+        Yields:
+            The path to a supported image file.
+        """
+        logger.info(f"Searching for images in '{self.base_input_dir}'...")
+        for file_path in self.base_input_dir.rglob("*"):
+            if file_path.suffix.lower() in SUPPORTED_IMAGE_EXTENSIONS:
+                yield file_path
+
+    def _load_image(self, image_path: Path) -> np.ndarray:
+        """Loads a mock image after performing validation checks.
+
+        Args:
+            image_path: The full path to the image file to load.
+
+        Returns:
+            A mock NumPy array representing the image.
+        """
+        # ! This is a mock loader. In a real scenario, you would use a library
+        # ! like Pillow or OpenCV to load the image data into a NumPy array.
+        logger.debug(f"Loading '{image_path.name}'")
+        return np.random.randint(0, 256, size=(100, 100), dtype=np.uint8)
+
+    def apply_mock_convolution(self, image_path: Path) -> Path:
+        """Applies a mock 3x3 convolution to a loaded image.
+
+        Args:
+            image_path: The path to the image file to process.
+
+        Returns:
+            The path to the saved, convolved image data.
+        """
+        # Step 1: Load the source image.
+        img = self._load_image(image_path)
+        h, w = img.shape
+
+        # * Step 2: Define a sharpening kernel.
+        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+
+        # Step 3: Apply the kernel.
+        # ? Could this be faster? Yes, in a real application, this would be done
+        # ? with optimized library functions (e.g., scipy.signal.convolve2d).
+        output_img = np.zeros_like(img, dtype=np.float32)
+        for y in range(1, h - 1):
+            for x in range(1, w - 1):
+                roi = img[y - 1 : y + 2, x - 1 : x + 2]
+                output_img[y, x] = np.sum(roi * kernel)
+
+        # * Step 4: Normalize and save the output.
+        output_img = np.clip(output_img, 0, 255).astype(np.uint8)
+
+        out_path = self.output_dir / f"convolved_{image_path.name}.txt"
+        with out_path.open("w") as f:
+            f.write(str(output_img.tolist()))
+
+        return out_path
+
+
+# ============================== Main Application ============================= #
+app = typer.Typer(
+    add_completion=False,
+    help="Mock image utilities demonstrating modern Python practices.",
+    rich_markup_mode="markdown",
+)
+
+
+def _process_one_image(processor: ImageProcessor, image_path: Path) -> ProcessingResult:
+    """Wrapper function to process a single image and capture the result."""
+    start_time = monotonic()
+    try:
+        result_path = processor.apply_mock_convolution(image_path)
+        duration = monotonic() - start_time
+        logger.info(f"Successfully processed {image_path.name} in {duration:.2f}s.")
+        return ProcessingResult(
+            filename=image_path.name,
+            status="[bold green]Success[/bold green]",
+            details=str(result_path.relative_to(Path.cwd())),
+            duration=duration,
+        )
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        duration = monotonic() - start_time
+        logger.error(f"Failed to process {image_path.name}: {e}")
+        return ProcessingResult(
+            filename=image_path.name,
+            status="[bold red]Failed[/bold red]",
+            details=str(e),
+            duration=duration,
+        )
+
+
+@app.command()
+def process(
+    input_dir: Path = typer.Option(
+        "./input",
+        "--input-dir",
+        "-i",
+        exists=True,
+        file_okay=False,
+        help="Source directory containing images.",
+    ),
+    output_dir: Path = typer.Option(
+        "./output",
+        "--output-dir",
+        "-o",
+        file_okay=False,
+        help="Directory to save processed files.",
+    ),
+    max_workers: Optional[int] = typer.Option(
+        None, "--max-workers", "-w", help="Number of parallel worker threads."
+    ),
+    limit: Optional[int] = typer.Option(
+        None, "--limit", "-l", help="Limit processing to the first N images."
+    ),
+) -> None:
+    """Discover and process all images in a directory in parallel."""
+    proc = ImageProcessor(input_dir, output_dir)
+
+    # * Use a generator for discovery, and `itertools.islice` for efficient limiting.
+    image_paths_gen = proc.find_images()
+    if limit is not None:
+        console.print(f"[yellow]Limiting processing to the first {limit} images.[/yellow]")
+        image_paths_gen = islice(image_paths_gen, limit)
+    image_paths: List[Path] = list(image_paths_gen)
+
+    if not image_paths:
+        console.print("[yellow]No supported image files found to process.[/yellow]")
+        raise typer.Exit()
+
+    results: list[ProcessingResult] = []
+    with Progress(console=console) as progress:
+        task = progress.add_task("[cyan]Processing...", total=len(image_paths))
+        # * Use ThreadPoolExecutor for I/O-bound tasks like reading/writing files.
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_process_one_image, proc, path): path
+                for path in image_paths
+            }
+            for future in as_completed(futures):
+                results.append(future.result())
+                progress.update(task, advance=1)
+
+    # --- Display Summary Table ---
+    table = Table(title="[bold]Processing Summary[/bold]")
+    table.add_column("Source Image", style="cyan", no_wrap=True)
+    table.add_column("Status", justify="center")
+    table.add_column("Duration (s)", justify="right", style="magenta")
+    table.add_column("Details", justify="left", style="white")
+
+    total_duration = 0.0
+    for res in sorted(results, key=lambda r: r.filename):
+        table.add_row(res.filename, res.status, f"{res.duration:.2f}", res.details)
+        total_duration += res.duration
+
+    console.print(table)
+    console.print(f"\n✨ Total processing time: [bold blue]{total_duration:.2f}s[/bold blue]")
+
+    # * Use `collections.Counter` to efficiently tally outcomes.
+    status_counts = Counter(res.status for res in results)
+    success_count = status_counts.get("[bold green]Success[/bold green]", 0)
+    failed_count = status_counts.get("[bold red]Failed[/bold red]", 0)
+    console.print(f"📊 Status Summary: {success_count} Succeeded, {failed_count} Failed.")
+
+
+if __name__ == "__main__":
+    app()
+```
+
+
+
+---
+
+
+
+### Assistant Behavior
+
+* If I tell you that you are wrong, re-evaluate your response based on the facts provided.
+
+* Avoid apologies or conciliatory statements like "You're right" or "Yes."
+
+* Stick to the task at hand. Avoid hyperbole and unnecessary conversational filler.
+
+* Ensure responses are relevant to the provided context and code. Keep them concise.
+
+* Think step-by-step to validate your reasoning before responding.
+
+
+
+
+Show thinking

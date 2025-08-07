@@ -1,0 +1,30 @@
+# Stepwise Transformers Learning Project
+
+This project is dedicated to learning about transformers step by step. The goal is to understand transformer architecture, attention mechanisms, and implement them from scratch.
+
+## Project Structure
+- `src/` - Source code for transformer implementations
+- `notebooks/` - Jupyter notebooks for experiments and learning
+- `tests/` - Unit tests for transformer components
+- `docs/` - Documentation and learning notes
+- `data/` - Sample datasets for training and testing
+
+## Learning Objectives
+1. Understand attention mechanisms (self-attention, multi-head attention)
+2. Implement transformer encoder and decoder blocks
+3. Build a complete transformer model from scratch
+4. Train and evaluate transformer models
+5. Explore different transformer variants (BERT, GPT, etc.)
+
+## Key Concepts to Master
+- Positional encoding
+- Multi-head attention
+- Feed-forward networks
+- Layer normalization
+- Residual connections
+- Tokenization and vocabulary
+- Training strategies for transformers
+description:
+globs:
+alwaysApply: false
+---
