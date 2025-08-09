@@ -138,7 +138,7 @@ stepwise-transformers/
 - **PyTorch**: Deep learning framework for model implementation
 - **ClearML**: Comprehensive experiment tracking and model management
 - **NumPy**: Numerical computations and array operations
-- **Matplotlib/Seaborn**: Attention visualization and plotting
+- **Seaborn/Plotly**: Attention visualization and interactive plotting
 - **Rich**: Beautiful CLI interfaces and progress tracking
 
 ## Development Tools
