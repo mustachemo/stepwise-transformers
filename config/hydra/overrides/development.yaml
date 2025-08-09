@@ -1,0 +1,25 @@
+# Development environment overrides
+# @package _global_
+
+# Use smaller batch sizes and faster settings for development
+training:
+  batch_size: 8
+  eval_batch_size: 16
+  max_epochs: 10
+  log_every_n_steps: 5
+
+# Use small model for faster iteration
+defaults:
+  - /model_configs: small_transformer
+
+# Verbose logging for debugging
+logging:
+  log_every_n_steps: 1
+  log_attention_maps: true
+  log_gradients: true
+  log_weights: true
+
+# CPU-friendly settings
+device:
+  mixed_precision: false
+  compile_model: false

@@ -1,0 +1,30 @@
+# Production environment overrides
+# @package _global_
+
+# Production training settings
+training:
+  batch_size: 64
+  eval_batch_size: 128
+  max_epochs: 200
+  log_every_n_steps: 50
+
+# Use larger model for production
+defaults:
+  - /model_configs: medium_transformer
+
+# Optimized logging for production
+logging:
+  log_attention_maps: false  # Save storage space
+  log_gradients: false
+  log_weights: false
+  log_every_n_steps: 100
+
+# Performance optimizations
+device:
+  mixed_precision: true
+  compile_model: true
+
+# Larger data processing
+data:
+  num_workers: 8
+  pin_memory: true

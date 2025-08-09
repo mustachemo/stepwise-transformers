@@ -1,0 +1,94 @@
+# Default configuration for stepwise transformers
+# This configuration uses PyTorch's native transformer components
+
+model:
+  # Core transformer architecture parameters
+  d_model: 512              # Model dimension
+  n_heads: 8                # Number of attention heads
+  n_encoder_layers: 6       # Number of encoder layers
+  n_decoder_layers: 6       # Number of decoder layers
+  d_ff: 2048               # Feed-forward dimension
+  dropout: 0.1             # Dropout probability
+  activation: "relu"        # Activation function (relu, gelu)
+  layer_norm_eps: 1e-5     # Layer normalization epsilon
+  norm_first: false        # Whether to apply layer norm before or after sublayers
+  
+  # Vocabulary and sequence parameters
+  src_vocab_size: 32000    # Source vocabulary size
+  tgt_vocab_size: 32000    # Target vocabulary size
+  max_seq_length: 512      # Maximum sequence length
+  pad_token_id: 0          # Padding token ID
+
+training:
+  # Training hyperparameters
+  batch_size: 32           # Training batch size
+  eval_batch_size: 64      # Evaluation batch size
+  learning_rate: 1e-4      # Initial learning rate
+  weight_decay: 0.01       # Weight decay for regularization
+  max_epochs: 100          # Maximum number of epochs
+  warmup_steps: 4000       # Number of warmup steps for learning rate schedule
+  max_steps: null          # Maximum number of training steps (null = use epochs)
+  
+  # Optimization settings
+  optimizer: "adamw"        # Optimizer type (adamw, adam, sgd)
+  beta1: 0.9               # Adam beta1 parameter
+  beta2: 0.98              # Adam beta2 parameter
+  eps: 1e-9                # Adam epsilon parameter
+  grad_clip_norm: 1.0      # Gradient clipping norm
+  
+  # Learning rate schedule
+  lr_scheduler: "cosine"    # Learning rate scheduler (cosine, linear, constant)
+  min_lr: 1e-6             # Minimum learning rate
+
+data:
+  # Data processing parameters
+  dataset_name: "simple_translation"  # Dataset to use
+  train_split: 0.8         # Training split ratio
+  val_split: 0.1           # Validation split ratio
+  test_split: 0.1          # Test split ratio
+  num_workers: 4           # Number of data loading workers
+  pin_memory: true         # Pin memory for faster GPU transfer
+  
+  # Tokenization settings
+  tokenizer_type: "simple" # Tokenizer type (simple, bpe, sentencepiece)
+  vocab_file: null         # Path to vocabulary file (null = auto-generate)
+  special_tokens:
+    pad: "<pad>"
+    unk: "<unk>"
+    bos: "<bos>"
+    eos: "<eos>"
+
+device:
+  # Device configuration
+  use_cuda: true           # Use CUDA if available
+  device_id: 0             # GPU device ID
+  mixed_precision: true    # Use mixed precision training (fp16)
+  compile_model: false     # Use torch.compile (requires PyTorch 2.0+)
+
+logging:
+  # Experiment tracking configuration
+  project_name: "stepwise-transformers"
+  experiment_name: null    # Experiment name (null = auto-generate)
+  tags: ["transformer", "pytorch", "educational"]
+  log_every_n_steps: 10    # Log metrics every N training steps
+  save_every_n_epochs: 5   # Save checkpoint every N epochs
+  eval_every_n_epochs: 1   # Evaluate every N epochs
+  
+  # Visualization settings
+  log_attention_maps: true # Log attention heatmaps
+  log_model_graph: true    # Log model architecture graph
+  log_gradients: true      # Log gradient norms
+  log_weights: false       # Log weight distributions (expensive)
+
+# Hydra configuration
+defaults:
+  - _self_
+  - model_configs: medium_transformer
+  - override hydra/launcher: basic
+
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${hydra:job.num}
