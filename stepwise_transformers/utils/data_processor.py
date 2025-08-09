@@ -268,6 +268,10 @@ class DataProcessor:
         self.src_tokenizer = SimpleTokenizer(src_vocab_size, special_tokens)
         self.tgt_tokenizer = SimpleTokenizer(tgt_vocab_size, special_tokens)
 
+        # Storage for the raw generated dataset (for reproducibility / publishing)
+        self._src_texts_all: List[str] = []
+        self._tgt_texts_all: List[str] = []
+
     def prepare_data(
         self,
         num_samples: int = 1000,
@@ -286,6 +290,9 @@ class DataProcessor:
         """
         # Generate sample data
         src_texts, tgt_texts = create_sample_data(num_samples)
+        # Store for publishing/versioning
+        self._src_texts_all = list(src_texts)
+        self._tgt_texts_all = list(tgt_texts)
 
         # Build vocabularies
         self.src_tokenizer.build_vocab(src_texts)
@@ -330,3 +337,21 @@ class DataProcessor:
         )
 
         return train_loader, val_loader, test_loader
+
+    def get_dataset_records(self, limit: Optional[int] = None) -> List[Dict[str, str]]:
+        """Return the dataset as a list of JSON-serializable records.
+
+        Args:
+            limit: Optional maximum number of records to return.
+
+        Returns:
+            A list of dict records with keys 'src' and 'tgt'.
+        """
+        if limit is not None:
+            src_texts = self._src_texts_all[:limit]
+            tgt_texts = self._tgt_texts_all[:limit]
+        else:
+            src_texts = self._src_texts_all
+            tgt_texts = self._tgt_texts_all
+
+        return [{"src": s, "tgt": t} for s, t in zip(src_texts, tgt_texts)]

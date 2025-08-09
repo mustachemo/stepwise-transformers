@@ -8,11 +8,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List, Tuple
+import tempfile
+import shutil
+from datetime import datetime
 
 import torch
 import torch.nn as nn
-from clearml import Task, Logger, Model
+from clearml import Task, Logger, Model, Dataset
 import plotly.graph_objects as go
 import plotly.express as px
 import seaborn as sns
@@ -154,6 +157,102 @@ class ClearMLTracker:
             "model_size_mb": total_params * 4 / (1024 * 1024),  # Assuming float32
         })
 
+    def create_or_update_dataset(
+        self,
+        dataset_name: str,
+        items: List[Dict[str, Any]],
+        dataset_project: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """Create (or update) a ClearML Dataset version from in-memory items.
+
+        The items will be serialized to a temporary directory as JSONL files and
+        published as a new dataset version.
+
+        Args:
+            dataset_name: Name of the dataset in ClearML.
+            items: List of data records, each a JSON-serializable dict.
+            dataset_project: Optional ClearML project for the dataset. Defaults to the current project.
+            tags: Optional tags to assign to the dataset version.
+            metadata: Optional metadata dictionary to attach to the dataset.
+
+        Returns:
+            The ClearML dataset ID of the created/published dataset.
+        """
+        target_project: str = dataset_project or f"{self.project_name}/datasets"
+
+        # Materialize items into a temporary directory as a single JSONL file
+        temp_dir = Path(tempfile.mkdtemp(prefix="clearml_ds_"))
+        jsonl_path = temp_dir / "data.jsonl"
+        with jsonl_path.open("w", encoding="utf-8") as f:
+            for record in items:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+        # Create and publish dataset
+        ds = Dataset.create(dataset_name=dataset_name, dataset_project=target_project)
+        if tags:
+            for tag in tags:
+                ds.add_tags(tag)
+        if metadata:
+            ds.set_metadata(metadata)
+
+        ds.add_files(path=str(jsonl_path))
+        # Ensure files are uploaded to the ClearML files server or configured storage
+        ds.upload()
+        ds.finalize()
+        ds.publish()
+
+        # Upload the materialized JSONL as an artifact for traceability
+        self.task.upload_artifact(
+            name=f"dataset_{dataset_name}_jsonl",
+            artifact_object=str(jsonl_path),
+        )
+
+        # Cleanup temporary directory
+        try:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except OSError:
+            # Non-fatal cleanup failure
+            pass
+
+        return ds.id
+
+    def get_dataset_local_copy(
+        self,
+        dataset_name: Optional[str] = None,
+        dataset_project: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+    ) -> Path:
+        """Retrieve a local copy of a ClearML Dataset version.
+
+        Args:
+            dataset_name: Dataset name.
+            dataset_project: Dataset project. Defaults to the current project datasets namespace.
+            dataset_id: Specific dataset ID to retrieve.
+            tags: Optional list of tags to filter by (e.g., version tag).
+
+        Returns:
+            Local filesystem path containing the dataset files.
+
+        Raises:
+            ValueError: If neither dataset_id nor dataset_name is provided.
+        """
+        if not (dataset_id or dataset_name):
+            raise ValueError("Provide either dataset_id or dataset_name to retrieve a dataset")
+
+        target_project: Optional[str] = dataset_project or f"{self.project_name}/datasets"
+
+        ds: Dataset
+        if dataset_id:
+            ds = Dataset.get(dataset_id=dataset_id)
+        else:
+            ds = Dataset.get(dataset_name=dataset_name, dataset_project=target_project, dataset_tags=tags)
+
+        local_path = Path(ds.get_local_copy())
+        return local_path
+
     def log_attention_heatmap(
         self,
         attention_weights: torch.Tensor,
@@ -293,6 +392,63 @@ class ClearMLTracker:
             iteration=0,
         )
 
+    def export_torchscript(
+        self,
+        model: nn.Module,
+        example_inputs: Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor]],
+        export_path: Union[str, Path],
+    ) -> Path:
+        """Export the provided model as a TorchScript file and log it.
+
+        Args:
+            model: The PyTorch model to export.
+            example_inputs: Tuple of (src_ids, decoder_input, tgt_mask) used for tracing.
+            export_path: Path where the TorchScript file will be written.
+
+        Returns:
+            Path to the exported TorchScript file.
+        """
+        model.eval()
+        src_ids, decoder_input, tgt_mask = example_inputs
+        scripted = torch.jit.trace(model, (src_ids, decoder_input, tgt_mask))
+        export_path = Path(export_path)
+        export_path.parent.mkdir(parents=True, exist_ok=True)
+        scripted.save(str(export_path))
+
+        # Upload as artifact
+        self.task.upload_artifact(name="model_torchscript", artifact_object=str(export_path))
+        return export_path
+
+    def register_model_artifact(
+        self,
+        model_path: Union[str, Path],
+        name: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        comment: Optional[str] = None,
+    ) -> Model:
+        """Register a model file in the ClearML model registry and publish it.
+
+        Args:
+            model_path: Path to the model file (e.g., checkpoint, TorchScript, ONNX).
+            name: Optional display name in the registry.
+            tags: Optional tags to attach (e.g., ["serving-ready"]).
+            comment: Optional free-text comment/description.
+
+        Returns:
+            The published ClearML Model instance.
+        """
+        model_path = Path(model_path)
+        registry_name = name or model_path.name
+        mdl = Model(task=self.task, name=registry_name)
+        if tags:
+            for tag in tags:
+                mdl.add_tags(tag)
+        if comment:
+            mdl.set_comment(comment)
+        mdl.update_weights(weights_path=str(model_path))
+        mdl.publish()
+        return mdl
+
     def log_gradient_norms(
         self,
         model: nn.Module,
@@ -411,12 +567,9 @@ class ClearMLTracker:
         """
         sample_text = f"Input: {input_text}\nGenerated: {generated_text}"
 
-        self.logger.report_text(
-            title=title,
-            series="sample",
-            text=sample_text,
-            iteration=iteration,
-        )
+        # Use a conservative signature compatible across ClearML versions
+        msg = f"[{title}] {sample_text}"
+        self.logger.report_text(msg)
 
     def log_confusion_matrix(
         self,
@@ -483,9 +636,5 @@ class ClearMLTracker:
         if exc_type is None:
             self.finish_experiment()
         else:
-            # Log the exception
-            self.task.get_logger().report_text(
-                title="Error",
-                series="exception",
-                text=f"Exception occurred: {exc_type.__name__}: {exc_val}",
-            )
+            # Log the exception with a version-tolerant signature
+            self.logger.report_text(f"Exception occurred: {exc_type.__name__}: {exc_val}")

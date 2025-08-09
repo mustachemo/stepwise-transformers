@@ -273,6 +273,23 @@ def main(config: DictConfig) -> None:
             f"[green]✓ Data prepared: {len(train_loader)} train, {len(val_loader)} val, {len(test_loader)} test batches[/green]"
         )
 
+        # Publish dataset version to ClearML Dataset (synthetic sample for demo)
+        try:
+            from datetime import datetime
+
+            dataset_records = data_processor.get_dataset_records()
+            ds_tags = ["generated", datetime.utcnow().strftime("%Y%m%d-%H%M%S")]
+            ds_meta = {"num_samples": len(dataset_records), "source": "synthetic-example"}
+            dataset_id = tracker.create_or_update_dataset(
+                dataset_name=config.data.dataset_name,
+                items=dataset_records,
+                tags=ds_tags,
+                metadata=ds_meta,
+            )
+            console.print(f"[green]✓ Published ClearML Dataset:[/green] {dataset_id}")
+        except Exception as exc:
+            console.print(f"[yellow]⚠ Skipping dataset publish:[/yellow] {exc}")
+
         # Create model
         console.print("\n[bold blue]🏗️ Creating Model...[/bold blue]")
         model = create_model(config).to(device)
@@ -336,6 +353,27 @@ def main(config: DictConfig) -> None:
         test_metrics = evaluate_model(model, test_loader, criterion, device)
         tracker.log_metric("Test", "final_loss", test_metrics["loss"], 0)
         console.print(f"[green]✓ Test Loss: {test_metrics['loss']:.4f}[/green]")
+
+        # Export TorchScript and register model for serving
+        try:
+            # Take a small example batch
+            example_batch = next(iter(test_loader))
+            ex_src = example_batch["src_ids"].to(device)[:1]
+            ex_tgt_full = example_batch["tgt_ids"].to(device)[:1]
+            ex_decoder_input = ex_tgt_full[:, :-1]
+
+            export_path = Path("artifacts") / "model_scripted.pt"
+            # Trace without explicit mask to avoid dynamic mask shape constraints in JIT
+            ts_path = tracker.export_torchscript(
+                model, (ex_src, ex_decoder_input, None), export_path
+            )
+            reg_model = tracker.register_model_artifact(
+                ts_path, name="stepwise-transformer-torchscript", tags=["torchscript", "serving-ready"],
+                comment="TorchScript export suitable for ClearML Serving"
+            )
+            console.print(f"[green]✓ Registered model in ClearML Model Registry:[/green] {reg_model.id}")
+        except Exception as exc:
+            console.print(f"[yellow]⚠ Skipping TorchScript export/registration:[/yellow] {exc}")
 
         console.print(f"\n[bold green]🎉 Experiment completed successfully![/bold green]")
         console.print(f"[blue]🔗 View results: {tracker.get_experiment_url()}[/blue]")
