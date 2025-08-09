@@ -151,7 +151,7 @@ def train_epoch(
             logits = model(src_ids, decoder_input, tgt_mask=tgt_mask)
 
             # Calculate loss
-            loss = criterion(logits.view(-1, logits.size(-1)), target.view(-1))
+            loss = criterion(logits.view(-1, logits.size(-1)), target.contiguous().view(-1))
 
             # Backward pass
             loss.backward()
@@ -212,7 +212,7 @@ def evaluate_model(
             tgt_mask = model.generate_square_subsequent_mask(decoder_input.size(1)).to(device)
 
             logits = model(src_ids, decoder_input, tgt_mask=tgt_mask)
-            loss = criterion(logits.view(-1, logits.size(-1)), target.view(-1))
+            loss = criterion(logits.view(-1, logits.size(-1)), target.contiguous().view(-1))
 
             total_loss += loss.item()
             num_batches += 1
