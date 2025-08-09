@@ -128,7 +128,7 @@ The implemented transformer follows the original "Attention Is All You Need" arc
 - **Residual Connections**: Around each sub-layer with layer normalization
 - **Positional Encoding**: Sinusoidal encoding added to input embeddings
 
-### Decoder Stack  
+### Decoder Stack
 - **Masked Multi-Head Self-Attention**: Prevents attending to future positions
 - **Encoder-Decoder Attention**: Cross-attention between decoder and encoder outputs
 - **Position-wise Feed-Forward**: Same as encoder with residual connections
