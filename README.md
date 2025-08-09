@@ -1,228 +1,144 @@
-# Stepwise Transformers Learning with MLflow
+# Stepwise Transformers Learning with ClearML
 
-An interactive experiment-based application built with MLflow for learning transformer architecture, attention mechanisms, and neural network concepts through hands-on experimentation and real-time visualization.
+A comprehensive implementation of transformer architecture with standard attention mechanisms, integrated with ClearML for advanced experiment tracking, visualization, and model management.
 
 ## 🎯 Project Overview
 
-This project aims to create an educational application that makes learning transformers accessible and engaging through interactive MLflow experiments. Users can explore transformer components, visualize attention mechanisms, build models, and train them in real-time—all within a comprehensive experiment tracking environment.
+This project provides a clean, educational implementation of the transformer architecture from "Attention Is All You Need" with comprehensive ClearML integration. Learn transformer concepts through hands-on implementation while leveraging professional-grade experiment tracking, attention visualization, and model registry capabilities.
 
 ## 🏗️ Architecture
 
 ### Core Components
 
-- **Interactive Experiments**: Step-by-step guided learning with MLflow experiment tracking
-- **Component Library**: Live transformer component exploration and testing with experiment logging
-- **Model Builder**: Interactive interface for assembling transformer models with experiment tracking
-- **Training Interface**: Real-time training visualization with MLflow metrics
-- **Visualization Panels**: Attention heatmaps, architecture diagrams, and progress charts with artifact logging
-- **Experiment Management**: Save, load, and compare experiments using MLflow
+- **Transformer Architecture**: Complete implementation with encoder/decoder stacks
+- **Standard Attention**: Scaled dot-product attention with multi-head mechanism
+- **Positional Encoding**: Sinusoidal and learned positional encoding options
+- **Feed-Forward Networks**: Position-wise feed-forward with configurable activations
+- **ClearML Integration**: Comprehensive experiment tracking and visualization
+- **Model Registry**: Automated model versioning and checkpoint management
 
 ### Technology Stack
 
-- **Experiment Tracking**: [MLflow](https://mlflow.org/) for experiment management and tracking
-- **Styling**: Rich library for text formatting and styling
-- **Logging**: Loguru for robust, structured logging
-- **Neural Networks**: PyTorch for transformer implementations
-- **Data Processing**: NumPy for mathematical operations
-- **Configuration**: Dataclasses for structured configuration management
+- **Experiment Tracking**: [ClearML](https://clear.ml/) for professional experiment management
+- **Deep Learning**: PyTorch for transformer implementations
+- **Visualization**: Matplotlib and Seaborn for attention heatmaps and training curves
+- **Data Processing**: NumPy for mathematical operations and data handling
+- **Logging**: Structured logging with gradient tracking and metric visualization
+- **Configuration**: JSON-based configuration management
 
-## 📋 Development Plan
+## 🏃 Quick Start
 
-### Phase 1: MLflow Foundation (Weeks 1-2)
+### Installation and Setup
 
-#### MLflow Setup and Configuration
-- [ ] Install and configure MLflow for experiment tracking
-- [ ] Create basic experiment structure with proper logging
-- [ ] Implement experiment management and versioning
-- [ ] Set up artifact storage and visualization
-- [ ] Create basic experiment templates and configurations
-
-#### Transformer Concepts Introduction
-- [ ] Read "Attention Is All You Need" paper
-- [ ] Understand query, key, value concepts
-- [ ] Learn about positional encoding
-- [ ] Study multi-head attention mechanism
-- [ ] Review transformer architecture overview
-
-### Phase 2: Interactive Experiments (Weeks 3-4)
-
-#### MLflow Experiment Development
-- [ ] Create interactive attention experiment with MLflow tracking
-- [ ] Implement positional encoding experiment with parameter logging
-- [ ] Build model architecture experiment with configuration tracking
-- [ ] Develop training progress experiment with real-time metrics
-- [ ] Create parameter adjustment experiments with live tracking
-
-#### Transformer Component Integration
-- [ ] Implement sinusoidal positional encoding with MLflow logging
-- [ ] Create single-head attention experiment with metrics
-- [ ] Extend to multi-head attention experiments
-- [ ] Build feed-forward network experiments
-- [ ] Integrate components with MLflow experiment tracking
-
-### Phase 3: Interactive Building Blocks (Weeks 5-6)
-
-#### MLflow Model Builder Experiments
-- [ ] Create model builder experiment with component tracking
-- [ ] Implement component connection experiments
-- [ ] Add parameter configuration experiments
-- [ ] Build model validation experiments
-- [ ] Create model export experiments with artifact logging
-
-#### Transformer Block Integration
-- [ ] Implement encoder block experiments with MLflow tracking
-- [ ] Create decoder block experiments with masking controls
-- [ ] Add residual connection experiments
-- [ ] Implement layer normalization experiments
-- [ ] Build block interaction testing experiments
-
-### Phase 4: Complete Interactive Model (Weeks 7-8)
-
-#### MLflow Training Interface
-- [ ] Create real-time training experiments with MLflow UI
-- [ ] Implement loss and metric plotting experiments
-- [ ] Add training control experiments
-- [ ] Build model performance monitoring experiments
-- [ ] Create experiment management system
-
-#### Full Transformer Integration
-- [ ] Implement complete transformer experiments with MLflow
-- [ ] Add embedding layer configuration experiments
-- [ ] Create training loop experiments with live updates
-- [ ] Implement model evaluation experiments
-- [ ] Build experiment comparison tools
-
-### Phase 5: Interactive Training and Evaluation (Weeks 9-10)
-
-#### MLflow Data Management
-- [ ] Create dataset selection experiments
-- [ ] Implement data visualization experiments
-- [ ] Build tokenization configuration experiments
-- [ ] Add data preprocessing experiments
-- [ ] Create data validation experiments
-
-#### Interactive Training System
-- [ ] Implement real-time training monitoring experiments
-- [ ] Create interactive hyperparameter tuning experiments
-- [ ] Add training pause/resume experiments
-- [ ] Build experiment comparison interface
-- [ ] Implement training history management
-
-### Phase 6: Advanced MLflow Features (Weeks 11-12)
-
-#### Advanced Visualization
-- [ ] Implement 3D attention visualization experiments
-- [ ] Create gradient flow animation experiments
-- [ ] Build model performance dashboard experiments
-- [ ] Add interactive debugging experiments
-- [ ] Implement attention head analysis experiments
-
-#### Advanced Interactions
-- [ ] Create custom experiment development
-- [ ] Implement advanced MLflow tracking
-- [ ] Add plugin system for experiment extensions
-- [ ] Build collaborative experiment features
-- [ ] Create export/import functionality for experiments
-
-### Phase 7: Advanced Applications (Weeks 13+)
-
-#### Modern Transformer Variants
-- [ ] Create BERT architecture experiment tutorials
-- [ ] Implement GPT architecture experiment demos
-- [ ] Build T5 variant exploration experiments
-- [ ] Add architecture comparison experiments
-
-#### Practical MLflow Applications
-- [ ] Create text classification experiment interface
-- [ ] Implement sequence-to-sequence experiment demos
-- [ ] Build domain adaptation experiment tools
-- [ ] Add model comparison experiment dashboard
-- [ ] Create educational content experiment system
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python 3.8+
-- MLflow for experiment tracking
-- Git for version control
-
-### Installation
-
+1. **Clone the repository**
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/stepwise-transformers.git
 cd stepwise-transformers
+   ```
 
-# Create virtual environment
+2. **Create virtual environment**
+   ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-# Install dependencies
+3. **Install dependencies**
+   ```bash
 pip install -r requirements.txt
 ```
 
-### Running the Application
+4. **Set up ClearML** (optional - for experiment tracking)
+   ```bash
+   clearml-init
+   ```
 
+### Training Your First Transformer
+
+**Basic training with default configuration:**
 ```bash
-# Start the transformer learning experiments
-python -m src.main
+python -m src.main train
+```
 
-# View MLflow UI
-mlflow ui
+**Training with custom configuration:**
+```bash
+python -m src.main train --config config/default_config.json
+```
+
+**Training with custom ClearML project:**
+```bash
+python -m src.main train --project-name "my-transformers" --task-name "experiment-1"
+```
+
+## 📊 Features
+
+### Transformer Implementation
+- ✅ **Complete Architecture**: Full encoder-decoder transformer
+- ✅ **Standard Attention**: Scaled dot-product with multi-head support
+- ✅ **Positional Encoding**: Both sinusoidal and learned variants
+- ✅ **Layer Components**: LayerNorm, residual connections, feed-forward networks
+- ✅ **Configurable**: Flexible model sizing and hyperparameters
+
+### ClearML Integration
+- ✅ **Experiment Tracking**: Automatic logging of hyperparameters and metrics
+- ✅ **Attention Visualization**: Real-time attention heatmap generation
+- ✅ **Model Registry**: Automatic model versioning and checkpoint management
+- ✅ **Training Curves**: Loss and accuracy visualization over time
+- ✅ **Gradient Monitoring**: Gradient norm tracking for debugging
+- ✅ **Resource Tracking**: GPU and memory utilization monitoring
+
+## 📂 Project Structure
+
+```
+stepwise-transformers/
+├── src/                           # Source code
+│   ├── components/               # Transformer components
+│   │   ├── attention.py         # Multi-head attention implementation
+│   │   ├── positional_encoding.py # Positional encoding variants
+│   │   └── feed_forward.py      # Feed-forward networks
+│   ├── models/                  # Complete model implementations
+│   │   ├── transformer_layers.py # Encoder/decoder layer implementations
+│   │   └── transformer.py       # Full transformer model
+│   ├── utils/                   # Utilities and helpers
+│   │   ├── clearml_utils.py     # ClearML integration utilities
+│   │   └── data_utils.py        # Data processing and tokenization
+│   ├── train.py                 # Training script with ClearML integration
+│   └── main.py                  # CLI entry point
+├── config/                      # Configuration files
+│   └── default_config.json     # Default training configuration
+├── .cursor/rules/              # Development rules
+│   └── clearml-experiment-guide.md # ClearML usage guidelines
+├── requirements.txt            # Python dependencies
+└── README.md                   # Project documentation
 ```
 
 ### Key Commands
 
-- `python -m src.main` - Start the experiment manager
-- `mlflow ui` - Launch MLflow web interface
-- `mlflow experiments list` - List all experiments
-- `mlflow runs list` - List all experiment runs
-- `mlflow artifacts list` - List experiment artifacts
+- `python -m src.main train` - Start transformer training
+- `python -m src.main train --config config/custom.json` - Train with custom config
+- `clearml-agent init` - Set up ClearML agent for remote execution
+- `clearml-data upload` - Upload datasets to ClearML data management
 
-## 📁 Project Structure
+## 🎨 Model Architecture
 
-```
-stepwise-transformers/
-├── src/                    # Source code for transformer implementations
-│   ├── components/         # Transformer component implementations
-│   ├── experiments/        # MLflow experiment configurations
-│   ├── utils/             # Utility functions and helpers
-│   └── main.py            # Application entry point
-├── experiments/            # MLflow experiment configurations and results
-│   ├── attention/         # Attention mechanism experiments
-│   ├── positional/        # Positional encoding experiments
-│   ├── training/          # Training experiments
-│   └── visualization/     # Visualization experiments
-├── tests/                 # Unit tests for components and experiments
-├── docs/                  # Documentation and learning notes
-├── data/                  # Sample datasets and experiments
-├── examples/              # Interactive examples and demonstrations
-├── logs/                  # Application logs
-├── models/                # Saved transformer models and checkpoints
-├── artifacts/             # MLflow artifacts including visualizations
-└── .cursor/rules/         # Cursor Rules for development guidance
-```
+The implemented transformer follows the original "Attention Is All You Need" architecture:
 
-## 🎨 Features
+### Encoder Stack
+- **Multi-Head Self-Attention**: 8 attention heads with scaled dot-product attention
+- **Position-wise Feed-Forward**: Two linear transformations with ReLU activation
+- **Residual Connections**: Around each sub-layer with layer normalization
+- **Positional Encoding**: Sinusoidal encoding added to input embeddings
 
-### Interactive Learning
-- **Step-by-step experiments** with MLflow tracking
-- **Real-time visualization** of attention mechanisms with artifact logging
-- **Interactive model building** with experiment tracking
-- **Live training monitoring** with MLflow metrics
+### Decoder Stack  
+- **Masked Multi-Head Self-Attention**: Prevents attending to future positions
+- **Encoder-Decoder Attention**: Cross-attention between decoder and encoder outputs
+- **Position-wise Feed-Forward**: Same as encoder with residual connections
+- **Output Projection**: Linear layer to vocabulary size with softmax
 
-### Visualization Capabilities
-- **Attention weight heatmaps** for understanding attention patterns
-- **Model architecture diagrams** showing component relationships
-- **Training progress charts** with loss and accuracy curves
-- **Gradient flow visualization** for debugging
-
-### Experiment Management
-- **Save and load experiments** for reproducible research
-- **Compare different model configurations** side by side
-- **Export results** for further analysis
-- **Collaborative features** for sharing experiments
+### Key Features
+- **Configurable Model Size**: Adjustable d_model, heads, layers, and feed-forward dimensions
+- **Dropout Regularization**: Applied throughout the model for better generalization
+- **Label Smoothing**: Configurable smoothing factor for more robust training
+- **Gradient Clipping**: Prevents exploding gradients during training
 
 ## 🧪 Development Standards
 
@@ -234,7 +150,7 @@ This project follows strict Python coding standards:
 - **Logging**: Structured logging with Loguru for debugging
 - **Code Style**: PEP 8 compliance with 4-space indentation
 - **Testing**: Comprehensive unit tests for all components
-- **Experiment Tracking**: MLflow for experiment management and versioning
+- **Experiment Tracking**: ClearML for professional experiment management and versioning
 
 ## 🤝 Contributing
 
@@ -247,21 +163,20 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📚 Learning Resources
 
-- **Papers**: "Attention Is All You Need", "BERT", "GPT" papers
+- **Papers**: ["Attention Is All You Need"](https://arxiv.org/abs/1706.03762) - The original transformer paper
 - **Books**: "Deep Learning" by Goodfellow, Bengio, Courville
 - **Online Courses**: CS224N (Stanford), CS182 (Berkeley)
-- **Experiment Tracking**: MLflow documentation and tutorials
-- **Implementations**: PyTorch tutorials, Hugging Face transformers
+- **Experiment Tracking**: [ClearML Documentation](https://clear.ml/docs/) and tutorials
+- **Implementations**: PyTorch tutorials, Hugging Face transformers library
 
-## 🎯 Success Metrics
+## 🎯 What You'll Learn
 
-- [ ] Can build interactive MLflow experiments for transformer learning
-- [ ] Can implement transformer components with experiment tracking
-- [ ] Can create educational tutorials and experiments with MLflow
-- [ ] Can provide real-time model training and evaluation tracking
-- [ ] Can enable hands-on exploration of transformer concepts through experiments
-- [ ] Can develop custom experiments for transformer visualization
-- [ ] Can create engaging educational content through MLflow experiments
+- ✅ **Transformer Architecture**: Complete understanding of encoder-decoder structure
+- ✅ **Attention Mechanisms**: How scaled dot-product attention works in practice
+- ✅ **Training Dynamics**: Proper initialization, optimization, and regularization
+- ✅ **Experiment Tracking**: Professional ML experiment management with ClearML
+- ✅ **Model Development**: From implementation to deployment best practices
+- ✅ **Visualization**: Understanding model behavior through attention heatmaps
 
 ## 📄 License
 
@@ -269,11 +184,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [MLflow](https://mlflow.org/) for the amazing experiment tracking framework
-- [Rich](https://rich.readthedocs.io/) for beautiful terminal output
-- [PyTorch](https://pytorch.org/) for neural network capabilities
-- The transformer research community for foundational work
+- [ClearML](https://clear.ml/) for the comprehensive ML operations platform
+- [PyTorch](https://pytorch.org/) for the excellent deep learning framework
+- Vaswani et al. for the groundbreaking "Attention Is All You Need" paper
+- The transformer research community for continuous innovation
 
 ---
 
-**Ready to dive into transformers? Start your learning journey with our interactive MLflow experiments! 🚀**
+**Ready to master transformers? Start building and training with professional experiment tracking! 🚀**
