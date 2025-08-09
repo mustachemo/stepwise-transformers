@@ -48,7 +48,7 @@ This project provides an educational yet production-ready implementation of tran
 
 - ✅ **ClearML Integration**
   - Comprehensive experiment tracking
-  - Attention heatmap visualization  
+  - Attention heatmap visualization
   - Training curve monitoring
   - Model checkpointing and versioning
 
@@ -112,7 +112,7 @@ stepwise-transformers/
 ## 📚 Learning Path
 
 1. **🌱 Start Simple**: Run `run_experiment.py` and explore the outputs
-2. **🔧 Understand Config**: Modify `config/default_config.yaml` 
+2. **🔧 Understand Config**: Modify `config/default_config.yaml`
 3. **👁️ Visualize**: Check ClearML dashboard for attention patterns
 4. **⚡ Experiment**: Try different model architectures
 5. **🚀 Advanced**: Explore custom implementations vs PyTorch native

@@ -13,12 +13,15 @@ import torch
 import torch.nn as nn
 
 from stepwise_transformers.layers import TransformerEncoderLayer, TransformerDecoderLayer
-from stepwise_transformers.positional_encoding import SinusoidalPositionalEncoding, LearnedPositionalEncoding
+from stepwise_transformers.positional_encoding import (
+    SinusoidalPositionalEncoding,
+    LearnedPositionalEncoding,
+)
 
 
 class Transformer(nn.Module):
     """Complete transformer model with encoder and decoder stacks.
-    
+
     This implementation provides both PyTorch's native Transformer and a custom
     implementation with detailed analysis capabilities for educational purposes.
     """
@@ -68,7 +71,7 @@ class Transformer(nn.Module):
             ValueError: If parameters are invalid.
         """
         super().__init__()
-        
+
         # Validate parameters
         if d_model <= 0:
             raise ValueError(f"d_model must be positive, got {d_model}")
@@ -80,7 +83,7 @@ class Transformer(nn.Module):
             raise ValueError(f"n_encoder_layers must be non-negative, got {n_encoder_layers}")
         if n_decoder_layers < 0:
             raise ValueError(f"n_decoder_layers must be non-negative, got {n_decoder_layers}")
-            
+
         self.d_model = d_model
         self.n_heads = n_heads
         self.n_encoder_layers = n_encoder_layers
@@ -94,7 +97,7 @@ class Transformer(nn.Module):
         # Token embeddings
         self.src_embedding = nn.Embedding(src_vocab_size, d_model, padding_idx=pad_token_id)
         self.tgt_embedding = nn.Embedding(tgt_vocab_size, d_model, padding_idx=pad_token_id)
-        
+
         # Positional encoding
         if positional_encoding_type == "sinusoidal":
             self.src_pos_encoding = SinusoidalPositionalEncoding(
@@ -140,14 +143,22 @@ class Transformer(nn.Module):
         else:
             # Custom implementation with educational features
             self._build_custom_transformer(
-                d_model, n_heads, n_encoder_layers, n_decoder_layers,
-                d_ff, dropout, activation, layer_norm_eps, norm_first,
-                feed_forward_type, **kwargs
+                d_model,
+                n_heads,
+                n_encoder_layers,
+                n_decoder_layers,
+                d_ff,
+                dropout,
+                activation,
+                layer_norm_eps,
+                norm_first,
+                feed_forward_type,
+                **kwargs,
             )
 
         # Output projection
         self.output_projection = nn.Linear(d_model, tgt_vocab_size, bias=False)
-        
+
         # Initialize parameters
         self._initialize_parameters()
 
@@ -184,7 +195,7 @@ class Transformer(nn.Module):
                 for _ in range(n_encoder_layers)
             ])
             self.encoder_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
-        
+
         # Decoder layers
         if n_decoder_layers > 0:
             self.decoder_layers = nn.ModuleList([
@@ -209,15 +220,15 @@ class Transformer(nn.Module):
         # Initialize embeddings
         nn.init.xavier_uniform_(self.src_embedding.weight)
         nn.init.xavier_uniform_(self.tgt_embedding.weight)
-        
+
         # Zero out padding token embeddings
         with torch.no_grad():
             self.src_embedding.weight[self.pad_token_id].fill_(0)
             self.tgt_embedding.weight[self.pad_token_id].fill_(0)
-        
+
         # Initialize output projection
         nn.init.xavier_uniform_(self.output_projection.weight)
-        
+
         # Scale embeddings by sqrt(d_model) as in the original paper
         self.embedding_scale = math.sqrt(self.d_model)
 
@@ -259,21 +270,23 @@ class Transformer(nn.Module):
             raise ValueError(f"Expected 2D source input (batch, seq), got {src.dim()}D")
         if tgt.dim() != 2:
             raise ValueError(f"Expected 2D target input (batch, seq), got {tgt.dim()}D")
-        
+
         batch_size_src, src_seq_len = src.shape
         batch_size_tgt, tgt_seq_len = tgt.shape
-        
+
         if batch_size_src != batch_size_tgt:
-            raise ValueError(f"Source and target batch sizes must match: {batch_size_src} vs {batch_size_tgt}")
-        
+            raise ValueError(
+                f"Source and target batch sizes must match: {batch_size_src} vs {batch_size_tgt}"
+            )
+
         # Embed tokens
         src_embedded = self.src_embedding(src) * self.embedding_scale
         tgt_embedded = self.tgt_embedding(tgt) * self.embedding_scale
-        
+
         # Add positional encoding
         src_embedded = self.src_pos_encoding(src_embedded)
         tgt_embedded = self.tgt_pos_encoding(tgt_embedded)
-        
+
         if self.use_pytorch_native:
             # Use PyTorch's native implementation
             output = self.transformer(
@@ -289,14 +302,21 @@ class Transformer(nn.Module):
         else:
             # Custom implementation
             output = self._forward_custom(
-                src_embedded, tgt_embedded, src_mask, tgt_mask, memory_mask,
-                src_key_padding_mask, tgt_key_padding_mask, memory_key_padding_mask,
-                store_attention, store_activations
+                src_embedded,
+                tgt_embedded,
+                src_mask,
+                tgt_mask,
+                memory_mask,
+                src_key_padding_mask,
+                tgt_key_padding_mask,
+                memory_key_padding_mask,
+                store_attention,
+                store_activations,
             )
-        
+
         # Project to vocabulary
         logits = self.output_projection(output)
-        
+
         return logits
 
     def _forward_custom(
@@ -325,7 +345,7 @@ class Transformer(nn.Module):
                     store_activations=store_activations,
                 )
             memory = self.encoder_norm(memory)
-        
+
         # Decoder
         output = tgt_embedded
         if hasattr(self, "decoder_layers"):
@@ -341,7 +361,7 @@ class Transformer(nn.Module):
                     store_activations=store_activations,
                 )
             output = self.decoder_norm(output)
-        
+
         return output
 
     def generate_square_subsequent_mask(self, size: int) -> torch.Tensor:
@@ -386,7 +406,7 @@ class Transformer(nn.Module):
         """
         src_embedded = self.src_embedding(src) * self.embedding_scale
         src_embedded = self.src_pos_encoding(src_embedded)
-        
+
         if self.use_pytorch_native:
             return self.transformer.encoder(
                 src=src_embedded,
@@ -429,7 +449,7 @@ class Transformer(nn.Module):
         """
         tgt_embedded = self.tgt_embedding(tgt) * self.embedding_scale
         tgt_embedded = self.tgt_pos_encoding(tgt_embedded)
-        
+
         if self.use_pytorch_native:
             output = self.transformer.decoder(
                 tgt=tgt_embedded,
@@ -452,7 +472,7 @@ class Transformer(nn.Module):
                         memory_key_padding_mask=memory_key_padding_mask,
                     )
                 output = self.decoder_norm(output)
-        
+
         return self.output_projection(output)
 
     def count_parameters(self) -> dict[str, int]:
@@ -463,7 +483,7 @@ class Transformer(nn.Module):
         """
         total_params = sum(p.numel() for p in self.parameters())
         trainable_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
-        
+
         return {
             "total_parameters": total_params,
             "trainable_parameters": trainable_params,

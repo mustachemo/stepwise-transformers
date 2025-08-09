@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 class ClearMLTracker:
     """Comprehensive ClearML tracker for transformer experiments.
-    
+
     This class provides all the functionality needed to track transformer
     experiments with ClearML, including metrics, artifacts, model logging,
     and visualization.
@@ -49,11 +49,11 @@ class ClearMLTracker:
         """
         if not project_name:
             raise ValueError("project_name cannot be empty")
-        
+
         self.project_name = project_name
         self.task_name = task_name
         self.tags = tags or []
-        
+
         # Initialize ClearML task
         self.task = Task.init(
             project_name=project_name,
@@ -62,10 +62,10 @@ class ClearMLTracker:
             tags=self.tags,
             auto_connect_frameworks=auto_connect_frameworks,
         )
-        
+
         # Get logger
         self.logger = Logger.current_logger()
-        
+
         # Storage for attention weights and activations
         self._stored_attention_weights: Dict[str, torch.Tensor] = {}
         self._stored_activations: Dict[str, torch.Tensor] = {}
@@ -136,18 +136,18 @@ class ClearMLTracker:
         if hasattr(model, "count_parameters"):
             param_counts = model.count_parameters()
             self.log_hyperparameters(param_counts)
-        
+
         # Log model architecture as text
         model_str = str(model)
         self.task.upload_artifact(
             name="model_architecture",
             artifact_object=model_str,
         )
-        
+
         # Count total parameters
         total_params = sum(p.numel() for p in model.parameters())
         trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-        
+
         self.log_hyperparameters({
             "total_parameters": total_params,
             "trainable_parameters": trainable_params,
@@ -180,22 +180,24 @@ class ClearMLTracker:
             attn = attention_weights[0] if attention_weights.shape[0] > 1 else attention_weights
         else:
             attn = attention_weights
-        
+
         attn_np = attn.detach().cpu().numpy()
-        
+
         # Create heatmap using plotly
-        fig = go.Figure(data=go.Heatmap(
-            z=attn_np,
-            colorscale="Viridis",
-            colorbar=dict(title="Attention Weight"),
-        ))
-        
+        fig = go.Figure(
+            data=go.Heatmap(
+                z=attn_np,
+                colorscale="Viridis",
+                colorbar=dict(title="Attention Weight"),
+            )
+        )
+
         fig.update_layout(
             title=title,
             xaxis_title="Key Position",
             yaxis_title="Query Position",
         )
-        
+
         # Log to ClearML
         self.logger.report_plotly(
             title="Attention",
@@ -222,48 +224,56 @@ class ClearMLTracker:
             title: Plot title.
         """
         fig = go.Figure()
-        
+
         epochs = list(range(1, len(train_losses) + 1))
-        
+
         # Add loss curves
-        fig.add_trace(go.Scatter(
-            x=epochs,
-            y=train_losses,
-            mode="lines",
-            name="Train Loss",
-            line=dict(color="blue"),
-        ))
-        
-        if val_losses:
-            fig.add_trace(go.Scatter(
+        fig.add_trace(
+            go.Scatter(
                 x=epochs,
-                y=val_losses,
+                y=train_losses,
                 mode="lines",
-                name="Val Loss",
-                line=dict(color="red"),
-            ))
-        
+                name="Train Loss",
+                line=dict(color="blue"),
+            )
+        )
+
+        if val_losses:
+            fig.add_trace(
+                go.Scatter(
+                    x=epochs,
+                    y=val_losses,
+                    mode="lines",
+                    name="Val Loss",
+                    line=dict(color="red"),
+                )
+            )
+
         # Add accuracy curves if provided
         if train_accuracies:
-            fig.add_trace(go.Scatter(
-                x=epochs,
-                y=train_accuracies,
-                mode="lines",
-                name="Train Accuracy",
-                line=dict(color="green"),
-                yaxis="y2",
-            ))
-        
+            fig.add_trace(
+                go.Scatter(
+                    x=epochs,
+                    y=train_accuracies,
+                    mode="lines",
+                    name="Train Accuracy",
+                    line=dict(color="green"),
+                    yaxis="y2",
+                )
+            )
+
         if val_accuracies:
-            fig.add_trace(go.Scatter(
-                x=epochs,
-                y=val_accuracies,
-                mode="lines",
-                name="Val Accuracy",
-                line=dict(color="orange"),
-                yaxis="y2",
-            ))
-        
+            fig.add_trace(
+                go.Scatter(
+                    x=epochs,
+                    y=val_accuracies,
+                    mode="lines",
+                    name="Val Accuracy",
+                    line=dict(color="orange"),
+                    yaxis="y2",
+                )
+            )
+
         # Update layout
         fig.update_layout(
             title=title,
@@ -275,7 +285,7 @@ class ClearMLTracker:
                 side="right",
             ),
         )
-        
+
         self.logger.report_plotly(
             title="Training",
             series=title,
@@ -298,29 +308,29 @@ class ClearMLTracker:
         """
         total_norm = 0.0
         param_count = 0
-        
+
         gradient_norms = {}
         all_gradients = []
-        
+
         for name, param in model.named_parameters():
             if param.grad is not None:
                 param_norm = param.grad.data.norm(2)
                 total_norm += param_norm.item() ** 2
                 param_count += 1
-                
+
                 gradient_norms[f"grad_norm/{name}"] = param_norm.item()
                 all_gradients.extend(param.grad.data.flatten().cpu().numpy())
-        
+
         total_norm = total_norm ** (1.0 / 2)
-        
+
         # Log total gradient norm
         self.log_metric("Gradients", "total_norm", total_norm, iteration)
-        
+
         # Log individual parameter gradient norms
         for name, norm in gradient_norms.items():
             title, series = name.split("/", 1)
             self.log_metric(title, series, norm, iteration)
-        
+
         # Log gradient histogram
         if log_histogram and all_gradients:
             self.logger.report_histogram(
@@ -360,7 +370,7 @@ class ClearMLTracker:
         """
         checkpoint_path = Path(checkpoint_path)
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Create checkpoint
         checkpoint = {
             "epoch": epoch,
@@ -369,15 +379,15 @@ class ClearMLTracker:
             "loss": loss,
             "metadata": metadata or {},
         }
-        
+
         # Save checkpoint
         torch.save(checkpoint, checkpoint_path)
-        
+
         # Register model with ClearML
         model_obj = Model(task=self.task)
         model_obj.update_weights(weights_path=str(checkpoint_path))
         model_obj.publish()
-        
+
         # Log checkpoint info
         self.task.upload_artifact(
             name=f"checkpoint_epoch_{epoch}",
@@ -400,7 +410,7 @@ class ClearMLTracker:
             iteration: Iteration number.
         """
         sample_text = f"Input: {input_text}\nGenerated: {generated_text}"
-        
+
         self.logger.report_text(
             title=title,
             series="sample",
@@ -426,12 +436,12 @@ class ClearMLTracker:
             iteration: Iteration number.
         """
         from sklearn.metrics import confusion_matrix
-        
+
         cm = confusion_matrix(y_true, y_pred)
-        
+
         if class_names is None:
             class_names = [str(i) for i in range(cm.shape[0])]
-        
+
         fig = px.imshow(
             cm,
             x=class_names,
@@ -439,12 +449,12 @@ class ClearMLTracker:
             color_continuous_scale="Blues",
             title=title,
         )
-        
+
         fig.update_layout(
             xaxis_title="Predicted",
             yaxis_title="Actual",
         )
-        
+
         self.logger.report_plotly(
             title="Evaluation",
             series=title,

@@ -33,11 +33,11 @@ class SimpleTokenizer:
             "bos": "<bos>",
             "eos": "<eos>",
         }
-        
+
         # Initialize vocabulary
         self.vocab: Dict[str, int] = {}
         self.id_to_token: Dict[int, str] = {}
-        
+
         # Add special tokens
         for token in self.special_tokens.values():
             self._add_token(token)
@@ -62,31 +62,31 @@ class SimpleTokenizer:
     def encode(self, text: str, add_special_tokens: bool = True) -> List[int]:
         """Encode text to token IDs."""
         words = text.lower().split()
-        
+
         token_ids = []
         if add_special_tokens:
             token_ids.append(self.vocab[self.special_tokens["bos"]])
-        
+
         for word in words:
             token_id = self.vocab.get(word, self.vocab[self.special_tokens["unk"]])
             token_ids.append(token_id)
-        
+
         if add_special_tokens:
             token_ids.append(self.vocab[self.special_tokens["eos"]])
-        
+
         return token_ids
 
     def decode(self, token_ids: List[int], skip_special_tokens: bool = True) -> str:
         """Decode token IDs to text."""
         tokens = []
         special_token_ids = {self.vocab[token] for token in self.special_tokens.values()}
-        
+
         for token_id in token_ids:
             if skip_special_tokens and token_id in special_token_ids:
                 continue
             token = self.id_to_token.get(token_id, self.special_tokens["unk"])
             tokens.append(token)
-        
+
         return " ".join(tokens)
 
     @property
@@ -132,7 +132,7 @@ class SimpleTranslationDataset(Dataset):
         """
         if len(src_texts) != len(tgt_texts):
             raise ValueError("Source and target texts must have same length")
-        
+
         self.src_texts = src_texts
         self.tgt_texts = tgt_texts
         self.src_tokenizer = src_tokenizer
@@ -147,15 +147,15 @@ class SimpleTranslationDataset(Dataset):
         """Get dataset item."""
         src_text = self.src_texts[idx]
         tgt_text = self.tgt_texts[idx]
-        
+
         # Encode texts
         src_ids = self.src_tokenizer.encode(src_text)
         tgt_ids = self.tgt_tokenizer.encode(tgt_text)
-        
+
         # Truncate to max length
-        src_ids = src_ids[:self.max_length]
-        tgt_ids = tgt_ids[:self.max_length]
-        
+        src_ids = src_ids[: self.max_length]
+        tgt_ids = tgt_ids[: self.max_length]
+
         return {
             "src_ids": torch.tensor(src_ids, dtype=torch.long),
             "tgt_ids": torch.tensor(tgt_ids, dtype=torch.long),
@@ -164,31 +164,33 @@ class SimpleTranslationDataset(Dataset):
         }
 
 
-def collate_fn(batch: List[Dict[str, torch.Tensor]], pad_token_id: int = 0) -> Dict[str, torch.Tensor]:
+def collate_fn(
+    batch: List[Dict[str, torch.Tensor]], pad_token_id: int = 0
+) -> Dict[str, torch.Tensor]:
     """Collate function for DataLoader."""
     # Get maximum lengths
     max_src_len = max(len(item["src_ids"]) for item in batch)
     max_tgt_len = max(len(item["tgt_ids"]) for item in batch)
-    
+
     batch_size = len(batch)
-    
+
     # Create padded tensors
     src_ids = torch.full((batch_size, max_src_len), pad_token_id, dtype=torch.long)
     tgt_ids = torch.full((batch_size, max_tgt_len), pad_token_id, dtype=torch.long)
-    
+
     src_texts = []
     tgt_texts = []
-    
+
     for i, item in enumerate(batch):
         src_len = len(item["src_ids"])
         tgt_len = len(item["tgt_ids"])
-        
+
         src_ids[i, :src_len] = item["src_ids"]
         tgt_ids[i, :tgt_len] = item["tgt_ids"]
-        
+
         src_texts.append(item["src_text"])
         tgt_texts.append(item["tgt_text"])
-    
+
     return {
         "src_ids": src_ids,
         "tgt_ids": tgt_ids,
@@ -219,25 +221,25 @@ def create_sample_data(num_samples: int = 1000) -> Tuple[List[str], List[str]]:
         ("transformers changed everything", "les transformers ont tout changé"),
         ("attention is all you need", "l'attention est tout ce dont vous avez besoin"),
     ]
-    
+
     src_texts = []
     tgt_texts = []
-    
+
     for _ in range(num_samples):
         src, tgt = random.choice(templates)
-        
+
         # Add some variation
         if random.random() < 0.3:
             src = f"please {src}"
             tgt = f"s'il vous plaît {tgt}"
-        
+
         if random.random() < 0.2:
             src = f"{src} please"
             tgt = f"{tgt} s'il vous plaît"
-        
+
         src_texts.append(src)
         tgt_texts.append(tgt)
-    
+
     return src_texts, tgt_texts
 
 
@@ -262,7 +264,7 @@ class DataProcessor:
         self.src_vocab_size = src_vocab_size
         self.tgt_vocab_size = tgt_vocab_size
         self.max_length = max_length
-        
+
         self.src_tokenizer = SimpleTokenizer(src_vocab_size, special_tokens)
         self.tgt_tokenizer = SimpleTokenizer(tgt_vocab_size, special_tokens)
 
@@ -284,24 +286,24 @@ class DataProcessor:
         """
         # Generate sample data
         src_texts, tgt_texts = create_sample_data(num_samples)
-        
+
         # Build vocabularies
         self.src_tokenizer.build_vocab(src_texts)
         self.tgt_tokenizer.build_vocab(tgt_texts)
-        
+
         # Split data
         n_train = int(len(src_texts) * train_ratio)
         n_val = int(len(src_texts) * val_ratio)
-        
+
         train_src = src_texts[:n_train]
         train_tgt = tgt_texts[:n_train]
-        
-        val_src = src_texts[n_train:n_train + n_val]
-        val_tgt = tgt_texts[n_train:n_train + n_val]
-        
-        test_src = src_texts[n_train + n_val:]
-        test_tgt = tgt_texts[n_train + n_val:]
-        
+
+        val_src = src_texts[n_train : n_train + n_val]
+        val_tgt = tgt_texts[n_train : n_train + n_val]
+
+        test_src = src_texts[n_train + n_val :]
+        test_tgt = tgt_texts[n_train + n_val :]
+
         # Create datasets
         train_dataset = SimpleTranslationDataset(
             train_src, train_tgt, self.src_tokenizer, self.tgt_tokenizer, self.max_length
@@ -312,11 +314,11 @@ class DataProcessor:
         test_dataset = SimpleTranslationDataset(
             test_src, test_tgt, self.src_tokenizer, self.tgt_tokenizer, self.max_length
         )
-        
+
         # Create dataloaders
         def make_collate_fn():
             return lambda batch: collate_fn(batch, self.src_tokenizer.pad_token_id)
-        
+
         train_loader = DataLoader(
             train_dataset, batch_size=32, shuffle=True, collate_fn=make_collate_fn()
         )
@@ -326,5 +328,5 @@ class DataProcessor:
         test_loader = DataLoader(
             test_dataset, batch_size=64, shuffle=False, collate_fn=make_collate_fn()
         )
-        
+
         return train_loader, val_loader, test_loader

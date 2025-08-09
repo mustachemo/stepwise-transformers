@@ -1,9 +1,6 @@
 """Training and evaluation utilities."""
 
-from stepwise_transformers.training.trainer import TransformerTrainer
-from stepwise_transformers.training.evaluator import ModelEvaluator
+# Note: Training functionality is implemented in run_experiment.py
+# This module is reserved for future trainer and evaluator classes
 
-__all__ = [
-    "TransformerTrainer",
-    "ModelEvaluator",
-]
+__all__ = []

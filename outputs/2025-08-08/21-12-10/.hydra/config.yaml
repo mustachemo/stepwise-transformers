@@ -1,0 +1,72 @@
+model:
+  d_model: 512
+  n_heads: 8
+  n_encoder_layers: 6
+  n_decoder_layers: 6
+  d_ff: 2048
+  dropout: 0.1
+  activation: relu
+  layer_norm_eps: 1.0e-05
+  norm_first: false
+  src_vocab_size: 32000
+  tgt_vocab_size: 32000
+  max_seq_length: 512
+  pad_token_id: 0
+training:
+  batch_size: 32
+  eval_batch_size: 64
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  max_epochs: 1
+  warmup_steps: 4000
+  max_steps: null
+  optimizer: adamw
+  beta1: 0.9
+  beta2: 0.98
+  eps: 1.0e-09
+  grad_clip_norm: 1.0
+  lr_scheduler: cosine
+  min_lr: 1.0e-06
+data:
+  dataset_name: simple_translation
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+  num_workers: 4
+  pin_memory: true
+  tokenizer_type: simple
+  vocab_file: null
+  special_tokens:
+    pad: <pad>
+    unk: <unk>
+    bos: <bos>
+    eos: <eos>
+device:
+  use_cuda: true
+  device_id: 0
+  mixed_precision: true
+  compile_model: false
+logging:
+  project_name: stepwise-transformers
+  experiment_name: null
+  tags:
+  - transformer
+  - pytorch
+  - educational
+  log_every_n_steps: 10
+  save_every_n_epochs: 5
+  eval_every_n_epochs: 1
+  log_attention_maps: true
+  log_model_graph: true
+  log_gradients: true
+  log_weights: false
+model_configs:
+  d_model: 512
+  n_heads: 8
+  n_encoder_layers: 6
+  n_decoder_layers: 6
+  d_ff: 2048
+  dropout: 0.1
+  src_vocab_size: 32000
+  tgt_vocab_size: 32000
+  max_seq_length: 512
