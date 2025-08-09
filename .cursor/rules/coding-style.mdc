@@ -128,6 +128,8 @@ The primary goal is to produce code that is **clear, robust, maintainable, and P
 
 ### Recommended Libraries
 
+* **Deep Learning**: `torch` and `torch.nn` - **HEAVILY** leverage existing PyTorch implementations instead of reimplementing from scratch
+
 * **Numerical Operations**: `numpy`
 
 * **File Paths**: `pathlib`
@@ -145,6 +147,16 @@ The primary goal is to produce code that is **clear, robust, maintainable, and P
 * **collections**: Use `collections` for specialized data structures like `defaultdict`, `Counter`, and `namedtuple`.
 
 * **concurrent.futures**: Use `concurrent.futures` for parallel execution of tasks. Use `ThreadPoolExecutor` for I/O-bound tasks and `ProcessPoolExecutor` for CPU-bound tasks.
+
+### PyTorch Usage Guidelines
+
+* **Use Existing Implementations**: Always prefer `torch.nn.MultiheadAttention`, `torch.nn.TransformerEncoder`, `torch.nn.TransformerDecoder` over custom implementations
+
+* **Extend, Don't Reimplement**: When customization is needed, inherit from PyTorch classes and override specific methods
+
+* **Educational Value**: Use PyTorch's existing components as building blocks while adding logging, visualization, and experiment tracking
+
+* **Performance**: PyTorch implementations are optimized and well-tested - use them for production-quality code
 
 
 
