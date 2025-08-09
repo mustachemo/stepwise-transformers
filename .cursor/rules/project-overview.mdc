@@ -13,19 +13,83 @@ This project implements a complete transformer architecture with comprehensive C
 
 ```
 stepwise-transformers/
-├── attention.py              # Scaled dot-product and multi-head attention
-├── positional_encoding.py    # Sinusoidal and learned positional encoding
-├── feed_forward.py          # Position-wise and gated feed-forward networks
-├── transformer_layers.py    # Encoder and decoder layer implementations
-├── transformer.py           # Complete transformer model
-├── clearml_utils.py         # ClearML integration utilities
-├── data_utils.py            # Data processing and tokenization
-├── train.py                 # Training script with ClearML logging
-├── main.py                  # CLI entry point
-├── config/
-│   └── default_config.json  # Model and training configuration
-├── requirements.txt         # Dependencies
-└── README.md               # Project documentation
+├── stepwise_transformers/           # Main package directory
+│   ├── __init__.py                 # Package initialization
+│   ├── attention/                   # Attention mechanism modules
+│   │   ├── __init__.py
+│   │   ├── scaled_dot_product.py   # Scaled dot-product attention
+│   │   └── multi_head.py           # Multi-head attention implementation
+│   ├── positional_encoding/         # Positional encoding modules
+│   │   ├── __init__.py
+│   │   ├── sinusoidal.py           # Sinusoidal positional encoding
+│   │   └── learned.py              # Learned positional encoding
+│   ├── feed_forward/                # Feed-forward network modules
+│   │   ├── __init__.py
+│   │   ├── position_wise.py        # Position-wise feed-forward
+│   │   └── gated.py                # Gated linear unit variants
+│   ├── layers/                      # Transformer layer modules
+│   │   ├── __init__.py
+│   │   ├── encoder.py              # Encoder layer implementation
+│   │   └── decoder.py              # Decoder layer implementation
+│   ├── models/                      # Complete model implementations
+│   │   ├── __init__.py
+│   │   ├── transformer.py          # Full transformer model
+│   │   └── components.py           # Model component factory
+│   ├── utils/                       # Utility modules
+│   │   ├── __init__.py
+│   │   ├── clearml_tracker.py      # ClearML integration utilities
+│   │   ├── data_processor.py       # Data processing and tokenization
+│   │   └── visualization.py        # Attention heatmaps and plots
+│   └── training/                    # Training and evaluation modules
+│       ├── __init__.py
+│       ├── trainer.py               # Training loop implementation
+│       └── evaluator.py             # Model evaluation utilities
+├── scripts/                         # Executable scripts
+│   ├── train.py                    # Training script entry point
+│   └── main.py                     # CLI interface
+├── config/                          # Configuration files
+│   ├── __init__.py
+│   ├── default_config.yaml         # Default model and training parameters
+│   ├── model_configs/              # Pre-defined model configurations
+│   │   ├── __init__.py
+│   │   ├── small_transformer.yaml  # Small model configuration
+│   │   └── medium_transformer.yaml # Medium model configuration
+│   └── hydra/                      # Hydra configuration
+│       ├── __init__.py
+│       ├── config.yaml             # Main hydra configuration
+│       └── overrides/              # Environment-specific overrides
+│           ├── __init__.py
+│           ├── development.yaml     # Development environment config
+│           └── production.yaml      # Production environment config
+├── examples/                        # Example usage and tutorials
+│   ├── __init__.py
+│   ├── attention_demo.py           # Attention mechanism demonstration
+│   ├── training_example.py         # Basic training example
+│   ├── clearml_integration.py      # ClearML usage examples
+│   ├── optuna_optimization.py      # Hyperparameter optimization examples
+│   └── tensorboard_integration.py  # TensorBoard visualization examples
+├── optimization/                    # Hyperparameter optimization
+│   ├── __init__.py
+│   ├── optuna_studies/             # Optuna study configurations
+│   │   ├── __init__.py
+│   │   ├── transformer_search.yaml # Search space definitions
+│   │   └── multi_objective.yaml    # Multi-objective optimization configs
+│   └── optimization_runner.py      # Main optimization orchestration
+├── visualization/                   # Visualization and monitoring
+│   ├── __init__.py
+│   ├── tensorboard_utils.py        # TensorBoard integration helpers
+│   ├── attention_visualizer.py     # Attention heatmap generation
+│   └── training_monitor.py         # Training progress visualization
+├── tests/                           # Unit tests
+│   ├── __init__.py
+│   ├── test_attention.py           # Attention mechanism tests
+│   ├── test_transformer.py         # Transformer model tests
+│   └── test_clearml.py             # ClearML integration tests
+├── requirements.txt                 # Python dependencies (for compatibility)
+├── pyproject.toml                  # Project configuration and metadata
+├── uv.lock                         # UV dependency lock file
+├── setup.py                        # Package installation script
+└── README.md                       # Project documentation
 ```
 
 ## ClearML Features Showcase
@@ -76,6 +140,110 @@ stepwise-transformers/
 - **NumPy**: Numerical computations and array operations
 - **Matplotlib/Seaborn**: Attention visualization and plotting
 - **Rich**: Beautiful CLI interfaces and progress tracking
+
+## Development Tools
+
+### Dependency Management with UV
+- **Fast Package Management**: UV provides lightning-fast Python package installation and dependency resolution
+- **Lock File**: `uv.lock` ensures reproducible builds across different environments
+- **Virtual Environment**: Automatic virtual environment creation and management
+- **Modern Python**: Built-in support for modern Python packaging standards (PEP 621, PEP 660)
+- **Cross-Platform**: Consistent behavior across Windows, macOS, and Linux
+
+```bash
+# Install dependencies
+uv sync
+
+# Add new dependency
+uv add torch
+
+# Run commands in virtual environment
+uv run python scripts/train.py
+
+# Activate virtual environment
+uv shell
+```
+
+### Configuration Management with Hydra
+- **Dynamic Configuration**: Runtime configuration composition and overrides
+- **Type Safety**: Full type hints support with automatic validation
+- **Environment Support**: Different configs for development, testing, and production
+- **Command Line Overrides**: Easy parameter tuning without code changes
+- **Configuration Composition**: Modular config files that can be combined
+
+```python
+# config/default_config.yaml
+model:
+  d_model: 512
+  n_heads: 8
+  n_layers: 6
+
+training:
+  batch_size: 32
+  learning_rate: 1e-4
+  epochs: 100
+
+# Command line overrides
+# python scripts/train.py model.d_model=256 training.batch_size=64
+```
+
+### Hyperparameter Optimization with Optuna
+- **Automated Tuning**: Bayesian optimization for hyperparameter search
+- **Multi-Objective Optimization**: Optimize multiple metrics simultaneously (loss, accuracy, training time)
+- **Pruning**: Early stopping of unpromising trials to save computational resources
+- **Study Management**: Organize and compare different optimization studies
+- **Integration**: Seamless integration with ClearML for experiment tracking
+
+```python
+# optuna_optimization.py
+import optuna
+from clearml import Task
+
+def objective(trial):
+    # Hyperparameters to optimize
+    d_model = trial.suggest_categorical("d_model", [256, 512, 1024])
+    n_heads = trial.suggest_categorical("n_heads", [4, 8, 16])
+    learning_rate = trial.suggest_float("learning_rate", 1e-5, 1e-3, log=True)
+
+    # Train model and return validation loss
+    val_loss = train_and_evaluate(d_model, n_heads, learning_rate)
+    return val_loss
+
+# Create study and optimize
+study = optuna.create_study(direction="minimize")
+study.optimize(objective, n_trials=100)
+```
+
+### Visualization and Monitoring with TensorBoard
+- **Training Metrics**: Real-time loss curves, accuracy plots, and learning rate schedules
+- **Model Architecture**: Visual representation of transformer layers and connections
+- **Attention Visualization**: Interactive attention heatmaps across different layers
+- **Gradient Flow**: Monitor gradient norms and weight distributions
+- **Resource Usage**: Track GPU utilization, memory consumption, and training speed
+- **ClearML Integration**: TensorBoard logs automatically synced with ClearML experiments
+
+```python
+# tensorboard_integration.py
+from torch.utils.tensorboard import SummaryWriter
+from clearml import Task
+
+# Initialize TensorBoard writer
+writer = SummaryWriter('runs/transformer_experiment')
+
+# Log during training
+for epoch in range(num_epochs):
+    # Training metrics
+    writer.add_scalar('Loss/Train', train_loss, epoch)
+    writer.add_scalar('Accuracy/Train', train_acc, epoch)
+
+    # Attention heatmaps
+    writer.add_image('Attention/Layer_1', attention_heatmap, epoch)
+
+    # Model weights distribution
+    for name, param in model.named_parameters():
+        writer.add_histogram(f'Weights/{name}', param.data, epoch)
+        writer.add_histogram(f'Gradients/{name}', param.grad, epoch)
+```
 
 ## Development Principles
 
