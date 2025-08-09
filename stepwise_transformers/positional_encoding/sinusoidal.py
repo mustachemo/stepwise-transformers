@@ -15,7 +15,7 @@ import torch.nn as nn
 
 class SinusoidalPositionalEncoding(nn.Module):
     """Sinusoidal positional encoding with educational features.
-    
+
     Implements the sinusoidal positional encoding from "Attention Is All You Need"
     with additional analysis and visualization capabilities for learning purposes.
     """
@@ -39,7 +39,7 @@ class SinusoidalPositionalEncoding(nn.Module):
             ValueError: If d_model is not even or other parameters are invalid.
         """
         super().__init__()
-        
+
         if d_model <= 0:
             raise ValueError(f"d_model must be positive, got {d_model}")
         if d_model % 2 != 0:
@@ -50,47 +50,43 @@ class SinusoidalPositionalEncoding(nn.Module):
             raise ValueError(f"dropout must be in [0, 1], got {dropout}")
         if base <= 0:
             raise ValueError(f"base must be positive, got {base}")
-            
+
         self.d_model = d_model
         self.max_seq_length = max_seq_length
         self.base = base
         self.dropout = nn.Dropout(dropout)
-        
+
         # Precompute positional encodings
         pe = self._create_positional_encoding()
-        
+
         # Register as buffer so it moves with the model but isn't a parameter
         self.register_buffer("pe", pe, persistent=False)
 
     def _create_positional_encoding(self) -> torch.Tensor:
         """Create the sinusoidal positional encoding matrix.
-        
+
         Returns:
             Positional encoding matrix of shape (max_seq_length, d_model).
         """
         pe = torch.zeros(self.max_seq_length, self.d_model)
         position = torch.arange(0, self.max_seq_length, dtype=torch.float).unsqueeze(1)
-        
+
         # Create the div_term for the sinusoidal functions
         # div_term = exp(-log(base) * 2i / d_model) for i in [0, 1, ..., d_model//2-1]
         div_term = torch.exp(
-            torch.arange(0, self.d_model, 2, dtype=torch.float) * 
-            -(math.log(self.base) / self.d_model)
+            torch.arange(0, self.d_model, 2, dtype=torch.float)
+            * -(math.log(self.base) / self.d_model)
         )
-        
+
         # Apply sin to even indices (0, 2, 4, ...)
         pe[:, 0::2] = torch.sin(position * div_term)
-        
+
         # Apply cos to odd indices (1, 3, 5, ...)
         pe[:, 1::2] = torch.cos(position * div_term)
-        
+
         return pe
 
-    def forward(
-        self, 
-        x: torch.Tensor, 
-        positions: Optional[torch.Tensor] = None
-    ) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, positions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Add positional encoding to input embeddings.
 
         Args:
@@ -104,24 +100,30 @@ class SinusoidalPositionalEncoding(nn.Module):
             ValueError: If sequence length exceeds max_seq_length or dimensions mismatch.
         """
         batch_size, seq_len, feature_dim = x.shape
-        
+
         if feature_dim != self.d_model:
-            raise ValueError(f"Input feature dimension {feature_dim} doesn't match d_model {self.d_model}")
+            raise ValueError(
+                f"Input feature dimension {feature_dim} doesn't match d_model {self.d_model}"
+            )
         if seq_len > self.max_seq_length:
-            raise ValueError(f"Sequence length {seq_len} exceeds max_seq_length {self.max_seq_length}")
-        
+            raise ValueError(
+                f"Sequence length {seq_len} exceeds max_seq_length {self.max_seq_length}"
+            )
+
         if positions is None:
             # Use sequential positions
             pe = self.pe[:seq_len].unsqueeze(0)  # Shape: (1, seq_len, d_model)
         else:
             # Use provided positions
             if positions.max().item() >= self.max_seq_length:
-                raise ValueError(f"Position index {positions.max().item()} exceeds max_seq_length {self.max_seq_length}")
+                raise ValueError(
+                    f"Position index {positions.max().item()} exceeds max_seq_length {self.max_seq_length}"
+                )
             pe = self.pe[positions]  # Shape: (batch_size, seq_len, d_model)
-        
+
         # Add positional encoding to input
         x = x + pe
-        
+
         return self.dropout(x)
 
     def get_positional_encoding(self, seq_len: int) -> torch.Tensor:
@@ -137,8 +139,10 @@ class SinusoidalPositionalEncoding(nn.Module):
             ValueError: If seq_len exceeds max_seq_length.
         """
         if seq_len > self.max_seq_length:
-            raise ValueError(f"Sequence length {seq_len} exceeds max_seq_length {self.max_seq_length}")
-        
+            raise ValueError(
+                f"Sequence length {seq_len} exceeds max_seq_length {self.max_seq_length}"
+            )
+
         return self.pe[:seq_len].clone()
 
     def visualize_encoding(self, seq_len: int = 100) -> dict[str, torch.Tensor]:
@@ -152,15 +156,15 @@ class SinusoidalPositionalEncoding(nn.Module):
         """
         if seq_len > self.max_seq_length:
             seq_len = self.max_seq_length
-            
+
         pe = self.pe[:seq_len]
-        
+
         # Compute frequencies for each dimension
         frequencies = torch.exp(
-            torch.arange(0, self.d_model, 2, dtype=torch.float) * 
-            -(math.log(self.base) / self.d_model)
+            torch.arange(0, self.d_model, 2, dtype=torch.float)
+            * -(math.log(self.base) / self.d_model)
         )
-        
+
         return {
             "encoding_matrix": pe,
             "frequencies": frequencies,
@@ -170,7 +174,7 @@ class SinusoidalPositionalEncoding(nn.Module):
 
     def compute_similarity_matrix(self, seq_len: int = 50) -> torch.Tensor:
         """Compute cosine similarity between positional encodings.
-        
+
         This helps understand how similar positions are encoded.
 
         Args:
@@ -181,13 +185,13 @@ class SinusoidalPositionalEncoding(nn.Module):
         """
         if seq_len > self.max_seq_length:
             seq_len = self.max_seq_length
-            
+
         pe = self.pe[:seq_len]  # Shape: (seq_len, d_model)
-        
+
         # Compute cosine similarity
         pe_norm = torch.nn.functional.normalize(pe, p=2, dim=1)
         similarity = torch.matmul(pe_norm, pe_norm.transpose(0, 1))
-        
+
         return similarity
 
     def extend_max_length(self, new_max_length: int) -> None:
@@ -200,8 +204,10 @@ class SinusoidalPositionalEncoding(nn.Module):
             ValueError: If new_max_length is not greater than current max_length.
         """
         if new_max_length <= self.max_seq_length:
-            raise ValueError(f"New max length {new_max_length} must be greater than current {self.max_seq_length}")
-        
+            raise ValueError(
+                f"New max length {new_max_length} must be greater than current {self.max_seq_length}"
+            )
+
         self.max_seq_length = new_max_length
         pe = self._create_positional_encoding()
         self.register_buffer("pe", pe, persistent=False)

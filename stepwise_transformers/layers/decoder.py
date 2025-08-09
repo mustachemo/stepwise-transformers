@@ -17,7 +17,7 @@ from stepwise_transformers.feed_forward import PositionWiseFeedForward, GatedFee
 
 class TransformerDecoderLayer(nn.Module):
     """Transformer decoder layer with educational features.
-    
+
     This implementation provides both PyTorch's optimized TransformerDecoderLayer
     and a custom implementation with detailed analysis capabilities for learning.
     """
@@ -33,7 +33,7 @@ class TransformerDecoderLayer(nn.Module):
         norm_first: bool = False,
         use_pytorch_native: bool = True,
         feed_forward_type: str = "standard",
-        **kwargs
+        **kwargs,
     ) -> None:
         """Initialize transformer decoder layer.
 
@@ -53,7 +53,7 @@ class TransformerDecoderLayer(nn.Module):
             ValueError: If parameters are invalid.
         """
         super().__init__()
-        
+
         if d_model <= 0:
             raise ValueError(f"d_model must be positive, got {d_model}")
         if n_heads <= 0:
@@ -62,13 +62,13 @@ class TransformerDecoderLayer(nn.Module):
             raise ValueError(f"d_ff must be positive, got {d_ff}")
         if d_model % n_heads != 0:
             raise ValueError(f"d_model ({d_model}) must be divisible by n_heads ({n_heads})")
-            
+
         self.d_model = d_model
         self.n_heads = n_heads
         self.d_ff = d_ff
         self.norm_first = norm_first
         self.use_pytorch_native = use_pytorch_native
-        
+
         if use_pytorch_native:
             # Use PyTorch's optimized implementation
             self.decoder_layer = nn.TransformerDecoderLayer(
@@ -84,8 +84,15 @@ class TransformerDecoderLayer(nn.Module):
         else:
             # Custom implementation with educational features
             self._build_custom_layer(
-                d_model, n_heads, d_ff, dropout, activation, 
-                layer_norm_eps, norm_first, feed_forward_type, **kwargs
+                d_model,
+                n_heads,
+                d_ff,
+                dropout,
+                activation,
+                layer_norm_eps,
+                norm_first,
+                feed_forward_type,
+                **kwargs,
             )
 
     def _build_custom_layer(
@@ -98,7 +105,7 @@ class TransformerDecoderLayer(nn.Module):
         layer_norm_eps: float,
         norm_first: bool,
         feed_forward_type: str,
-        **kwargs
+        **kwargs,
     ) -> None:
         """Build custom decoder layer components."""
         # Self-attention (masked)
@@ -108,7 +115,7 @@ class TransformerDecoderLayer(nn.Module):
             dropout=dropout,
             batch_first=True,
         )
-        
+
         # Cross-attention (encoder-decoder attention)
         self.cross_attention = MultiHeadAttention(
             d_model=d_model,
@@ -116,7 +123,7 @@ class TransformerDecoderLayer(nn.Module):
             dropout=dropout,
             batch_first=True,
         )
-        
+
         # Feed-forward network
         if feed_forward_type == "standard":
             self.feed_forward = PositionWiseFeedForward(
@@ -135,12 +142,12 @@ class TransformerDecoderLayer(nn.Module):
             )
         else:
             raise ValueError(f"Unsupported feed_forward_type: {feed_forward_type}")
-        
+
         # Layer normalization
         self.norm1 = nn.LayerNorm(d_model, eps=layer_norm_eps)
         self.norm2 = nn.LayerNorm(d_model, eps=layer_norm_eps)
         self.norm3 = nn.LayerNorm(d_model, eps=layer_norm_eps)
-        
+
         # Dropout for residual connections
         self.dropout = nn.Dropout(dropout)
 
@@ -176,18 +183,26 @@ class TransformerDecoderLayer(nn.Module):
         if tgt.dim() != 3:
             raise ValueError(f"Expected 3D target input (batch, seq, features), got {tgt.dim()}D")
         if memory.dim() != 3:
-            raise ValueError(f"Expected 3D memory input (batch, seq, features), got {memory.dim()}D")
-        
+            raise ValueError(
+                f"Expected 3D memory input (batch, seq, features), got {memory.dim()}D"
+            )
+
         batch_size_tgt, tgt_seq_len, tgt_feature_dim = tgt.shape
         batch_size_mem, mem_seq_len, mem_feature_dim = memory.shape
-        
+
         if tgt_feature_dim != self.d_model:
-            raise ValueError(f"Target feature dimension {tgt_feature_dim} doesn't match d_model {self.d_model}")
+            raise ValueError(
+                f"Target feature dimension {tgt_feature_dim} doesn't match d_model {self.d_model}"
+            )
         if mem_feature_dim != self.d_model:
-            raise ValueError(f"Memory feature dimension {mem_feature_dim} doesn't match d_model {self.d_model}")
+            raise ValueError(
+                f"Memory feature dimension {mem_feature_dim} doesn't match d_model {self.d_model}"
+            )
         if batch_size_tgt != batch_size_mem:
-            raise ValueError(f"Target and memory batch sizes must match: {batch_size_tgt} vs {batch_size_mem}")
-        
+            raise ValueError(
+                f"Target and memory batch sizes must match: {batch_size_tgt} vs {batch_size_mem}"
+            )
+
         if self.use_pytorch_native:
             return self.decoder_layer(
                 tgt=tgt,
@@ -199,9 +214,14 @@ class TransformerDecoderLayer(nn.Module):
             )
         else:
             return self._forward_custom(
-                tgt, memory, tgt_mask, memory_mask,
-                tgt_key_padding_mask, memory_key_padding_mask,
-                store_attention, store_activations
+                tgt,
+                memory,
+                tgt_mask,
+                memory_mask,
+                tgt_key_padding_mask,
+                memory_key_padding_mask,
+                store_attention,
+                store_activations,
             )
 
     def _forward_custom(
@@ -229,7 +249,7 @@ class TransformerDecoderLayer(nn.Module):
                 store_attention=store_attention,
             )
             tgt = tgt + self.dropout(self_attn_output)
-            
+
             # Cross-attention block
             norm_tgt = self.norm2(tgt)
             cross_attn_output, _ = self.cross_attention(
@@ -241,7 +261,7 @@ class TransformerDecoderLayer(nn.Module):
                 store_attention=store_attention,
             )
             tgt = tgt + self.dropout(cross_attn_output)
-            
+
             # Feed-forward block
             norm_tgt = self.norm3(tgt)
             ff_output = self.feed_forward(norm_tgt, store_activations=store_activations)
@@ -258,7 +278,7 @@ class TransformerDecoderLayer(nn.Module):
                 store_attention=store_attention,
             )
             tgt = self.norm1(tgt + self.dropout(self_attn_output))
-            
+
             # Cross-attention block
             cross_attn_output, _ = self.cross_attention(
                 query=tgt,
@@ -269,11 +289,11 @@ class TransformerDecoderLayer(nn.Module):
                 store_attention=store_attention,
             )
             tgt = self.norm2(tgt + self.dropout(cross_attn_output))
-            
+
             # Feed-forward block
             ff_output = self.feed_forward(tgt, store_activations=store_activations)
             tgt = self.norm3(tgt + self.dropout(ff_output))
-        
+
         return tgt
 
     def get_self_attention_weights(self) -> Optional[torch.Tensor]:
@@ -316,35 +336,38 @@ class TransformerDecoderLayer(nn.Module):
             Dictionary with layer statistics for analysis.
         """
         stats = {}
-        
+
         # Self-attention statistics
         if hasattr(self, "self_attention"):
             self_attn_stats = self.self_attention.compute_attention_statistics()
             stats.update({f"self_attention_{k}": v for k, v in self_attn_stats.items()})
-        
+
         # Cross-attention statistics
         if hasattr(self, "cross_attention"):
             cross_attn_stats = self.cross_attention.compute_attention_statistics()
             stats.update({f"cross_attention_{k}": v for k, v in cross_attn_stats.items()})
-        
+
         # Feed-forward statistics
         if hasattr(self, "feed_forward"):
             if hasattr(self.feed_forward, "compute_activation_statistics"):
                 ff_stats = self.feed_forward.compute_activation_statistics()
                 stats.update({f"feed_forward_{k}": v for k, v in ff_stats.items()})
-        
+
         # Layer norm statistics
-        for i, norm in enumerate([
-            getattr(self, "norm1", None),
-            getattr(self, "norm2", None), 
-            getattr(self, "norm3", None)
-        ], 1):
+        for i, norm in enumerate(
+            [
+                getattr(self, "norm1", None),
+                getattr(self, "norm2", None),
+                getattr(self, "norm3", None),
+            ],
+            1,
+        ):
             if norm is not None:
                 stats[f"norm{i}_weight_mean"] = norm.weight.mean().item()
                 stats[f"norm{i}_weight_std"] = norm.weight.std().item()
                 stats[f"norm{i}_bias_mean"] = norm.bias.mean().item()
                 stats[f"norm{i}_bias_std"] = norm.bias.std().item()
-        
+
         return stats
 
     def extra_repr(self) -> str:

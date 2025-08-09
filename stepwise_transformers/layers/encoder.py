@@ -17,7 +17,7 @@ from stepwise_transformers.feed_forward import PositionWiseFeedForward, GatedFee
 
 class TransformerEncoderLayer(nn.Module):
     """Transformer encoder layer with educational features.
-    
+
     This implementation provides both PyTorch's optimized TransformerEncoderLayer
     and a custom implementation with detailed analysis capabilities for learning.
     """
@@ -33,7 +33,7 @@ class TransformerEncoderLayer(nn.Module):
         norm_first: bool = False,
         use_pytorch_native: bool = True,
         feed_forward_type: str = "standard",
-        **kwargs
+        **kwargs,
     ) -> None:
         """Initialize transformer encoder layer.
 
@@ -53,7 +53,7 @@ class TransformerEncoderLayer(nn.Module):
             ValueError: If parameters are invalid.
         """
         super().__init__()
-        
+
         if d_model <= 0:
             raise ValueError(f"d_model must be positive, got {d_model}")
         if n_heads <= 0:
@@ -62,13 +62,13 @@ class TransformerEncoderLayer(nn.Module):
             raise ValueError(f"d_ff must be positive, got {d_ff}")
         if d_model % n_heads != 0:
             raise ValueError(f"d_model ({d_model}) must be divisible by n_heads ({n_heads})")
-            
+
         self.d_model = d_model
         self.n_heads = n_heads
         self.d_ff = d_ff
         self.norm_first = norm_first
         self.use_pytorch_native = use_pytorch_native
-        
+
         if use_pytorch_native:
             # Use PyTorch's optimized implementation
             self.encoder_layer = nn.TransformerEncoderLayer(
@@ -84,8 +84,15 @@ class TransformerEncoderLayer(nn.Module):
         else:
             # Custom implementation with educational features
             self._build_custom_layer(
-                d_model, n_heads, d_ff, dropout, activation, 
-                layer_norm_eps, norm_first, feed_forward_type, **kwargs
+                d_model,
+                n_heads,
+                d_ff,
+                dropout,
+                activation,
+                layer_norm_eps,
+                norm_first,
+                feed_forward_type,
+                **kwargs,
             )
 
     def _build_custom_layer(
@@ -98,7 +105,7 @@ class TransformerEncoderLayer(nn.Module):
         layer_norm_eps: float,
         norm_first: bool,
         feed_forward_type: str,
-        **kwargs
+        **kwargs,
     ) -> None:
         """Build custom encoder layer components."""
         # Multi-head attention
@@ -108,7 +115,7 @@ class TransformerEncoderLayer(nn.Module):
             dropout=dropout,
             batch_first=True,
         )
-        
+
         # Feed-forward network
         if feed_forward_type == "standard":
             self.feed_forward = PositionWiseFeedForward(
@@ -127,11 +134,11 @@ class TransformerEncoderLayer(nn.Module):
             )
         else:
             raise ValueError(f"Unsupported feed_forward_type: {feed_forward_type}")
-        
+
         # Layer normalization
         self.norm1 = nn.LayerNorm(d_model, eps=layer_norm_eps)
         self.norm2 = nn.LayerNorm(d_model, eps=layer_norm_eps)
-        
+
         # Dropout for residual connections
         self.dropout = nn.Dropout(dropout)
 
@@ -160,11 +167,13 @@ class TransformerEncoderLayer(nn.Module):
         """
         if src.dim() != 3:
             raise ValueError(f"Expected 3D input (batch, seq, features), got {src.dim()}D")
-        
+
         batch_size, seq_len, feature_dim = src.shape
         if feature_dim != self.d_model:
-            raise ValueError(f"Input feature dimension {feature_dim} doesn't match d_model {self.d_model}")
-        
+            raise ValueError(
+                f"Input feature dimension {feature_dim} doesn't match d_model {self.d_model}"
+            )
+
         if self.use_pytorch_native:
             return self.encoder_layer(
                 src=src,
@@ -173,8 +182,7 @@ class TransformerEncoderLayer(nn.Module):
             )
         else:
             return self._forward_custom(
-                src, src_mask, src_key_padding_mask, 
-                store_attention, store_activations
+                src, src_mask, src_key_padding_mask, store_attention, store_activations
             )
 
     def _forward_custom(
@@ -199,7 +207,7 @@ class TransformerEncoderLayer(nn.Module):
                 store_attention=store_attention,
             )
             src = src + self.dropout(attn_output)
-            
+
             # Feed-forward block
             norm_src = self.norm2(src)
             ff_output = self.feed_forward(norm_src, store_activations=store_activations)
@@ -216,11 +224,11 @@ class TransformerEncoderLayer(nn.Module):
                 store_attention=store_attention,
             )
             src = self.norm1(src + self.dropout(attn_output))
-            
+
             # Feed-forward block
             ff_output = self.feed_forward(src, store_activations=store_activations)
             src = self.norm2(src + self.dropout(ff_output))
-        
+
         return src
 
     def get_attention_weights(self) -> Optional[torch.Tensor]:
@@ -253,31 +261,31 @@ class TransformerEncoderLayer(nn.Module):
             Dictionary with layer statistics for analysis.
         """
         stats = {}
-        
+
         # Attention statistics
         if hasattr(self, "self_attention"):
             attention_stats = self.self_attention.compute_attention_statistics()
             stats.update({f"attention_{k}": v for k, v in attention_stats.items()})
-        
+
         # Feed-forward statistics
         if hasattr(self, "feed_forward"):
             if hasattr(self.feed_forward, "compute_activation_statistics"):
                 ff_stats = self.feed_forward.compute_activation_statistics()
                 stats.update({f"feed_forward_{k}": v for k, v in ff_stats.items()})
-        
+
         # Layer norm statistics
         if hasattr(self, "norm1"):
             stats["norm1_weight_mean"] = self.norm1.weight.mean().item()
             stats["norm1_weight_std"] = self.norm1.weight.std().item()
             stats["norm1_bias_mean"] = self.norm1.bias.mean().item()
             stats["norm1_bias_std"] = self.norm1.bias.std().item()
-        
+
         if hasattr(self, "norm2"):
             stats["norm2_weight_mean"] = self.norm2.weight.mean().item()
             stats["norm2_weight_std"] = self.norm2.weight.std().item()
             stats["norm2_bias_mean"] = self.norm2.bias.mean().item()
             stats["norm2_bias_std"] = self.norm2.bias.std().item()
-        
+
         return stats
 
     def extra_repr(self) -> str:

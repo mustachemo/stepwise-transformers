@@ -6,19 +6,19 @@ hydra:
     subdir: ${hydra:job.num}
   job:
     chdir: true
-  
+
   # Enable tab completion for config overrides
   help:
     app_name: stepwise-transformers
     header: |
       Stepwise Transformers: Interactive transformer learning with ClearML
-      
+
       Examples:
         python scripts/train.py model=small_transformer training.batch_size=16
         python scripts/train.py training.learning_rate=1e-3 logging.project_name=my-experiment
-  
+
   # Override configuration
-  override_dirname: 
-    kv_sep: '='
-    item_sep: ','
+  override_dirname:
+    kv_sep: "="
+    item_sep: ","
     exclude_keys: []

@@ -15,12 +15,12 @@ import torch.nn.functional as F
 
 class GatedFeedForward(nn.Module):
     """Gated feed-forward network with various GLU variants.
-    
+
     Implements different variants of Gated Linear Units (GLUs):
     - GLU: GLU(x) = (xW + b) ⊙ σ(xV + c)
     - GEGLU: GEGLU(x) = GELU(xW + b) ⊙ (xV + c)
     - SwiGLU: SwiGLU(x) = Swish(xW + b) ⊙ (xV + c)
-    
+
     Where ⊙ denotes element-wise multiplication and σ is sigmoid.
     """
 
@@ -47,35 +47,34 @@ class GatedFeedForward(nn.Module):
             ValueError: If parameters are invalid or GLU variant is not supported.
         """
         super().__init__()
-        
+
         if d_model <= 0:
             raise ValueError(f"d_model must be positive, got {d_model}")
         if d_ff <= 0:
             raise ValueError(f"d_ff must be positive, got {d_ff}")
         if not 0 <= dropout <= 1:
             raise ValueError(f"dropout must be in [0, 1], got {dropout}")
-            
+
         self.d_model = d_model
         self.d_ff = d_ff
         self.glu_variant = glu_variant
-        
+
         # Define linear layers
         self.linear_main = nn.Linear(d_model, d_ff, bias=bias)
         self.linear_gate = nn.Linear(d_model, d_ff, bias=gate_bias)
         self.linear_out = nn.Linear(d_ff, d_model, bias=bias)
         self.dropout = nn.Dropout(dropout)
-        
+
         # Get activation and gate functions
         self.activation_fn, self.gate_fn = self._get_activation_functions(glu_variant)
-        
+
         # For storing intermediate activations for analysis
         self.last_main_activations: Optional[torch.Tensor] = None
         self.last_gate_activations: Optional[torch.Tensor] = None
         self.last_gated_activations: Optional[torch.Tensor] = None
 
     def _get_activation_functions(
-        self, 
-        glu_variant: str
+        self, glu_variant: str
     ) -> tuple[Callable[[torch.Tensor], torch.Tensor], Callable[[torch.Tensor], torch.Tensor]]:
         """Get activation and gate functions for the specified GLU variant.
 
@@ -93,18 +92,14 @@ class GatedFeedForward(nn.Module):
             "geglu": (F.gelu, nn.Identity()),
             "swiglu": (F.silu, nn.Identity()),  # SiLU is the same as Swish
         }
-        
+
         if glu_variant not in variants:
             supported = ", ".join(variants.keys())
             raise ValueError(f"Unsupported GLU variant '{glu_variant}'. Supported: {supported}")
-        
+
         return variants[glu_variant]
 
-    def forward(
-        self, 
-        x: torch.Tensor, 
-        store_activations: bool = False
-    ) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, store_activations: bool = False) -> torch.Tensor:
         """Apply gated feed-forward transformation.
 
         Args:
@@ -119,34 +114,36 @@ class GatedFeedForward(nn.Module):
         """
         if x.dim() != 3:
             raise ValueError(f"Expected 3D input (batch, seq, features), got {x.dim()}D")
-        
+
         batch_size, seq_len, feature_dim = x.shape
         if feature_dim != self.d_model:
-            raise ValueError(f"Input feature dimension {feature_dim} doesn't match d_model {self.d_model}")
-        
+            raise ValueError(
+                f"Input feature dimension {feature_dim} doesn't match d_model {self.d_model}"
+            )
+
         # Compute main and gate activations
         main = self.linear_main(x)  # Shape: (batch_size, seq_len, d_ff)
         gate = self.linear_gate(x)  # Shape: (batch_size, seq_len, d_ff)
-        
+
         # Apply activation functions
         main_activated = self.activation_fn(main)
         gate_activated = self.gate_fn(gate)
-        
+
         # Apply gating mechanism
         gated = main_activated * gate_activated
-        
+
         # Store activations for analysis if requested
         if store_activations:
             self.last_main_activations = main_activated.detach()
             self.last_gate_activations = gate_activated.detach()
             self.last_gated_activations = gated.detach()
-        
+
         # Apply dropout
         gated = self.dropout(gated)
-        
+
         # Final linear transformation
         output = self.linear_out(gated)  # Shape: (batch_size, seq_len, d_model)
-        
+
         return output
 
     def get_activations(self) -> dict[str, Optional[torch.Tensor]]:
@@ -168,7 +165,7 @@ class GatedFeedForward(nn.Module):
             Dictionary with activation statistics for analysis.
         """
         stats = {}
-        
+
         if self.last_main_activations is not None:
             main = self.last_main_activations
             stats.update({
@@ -177,7 +174,7 @@ class GatedFeedForward(nn.Module):
                 "main_activation_max": main.max().item(),
                 "main_activation_min": main.min().item(),
             })
-        
+
         if self.last_gate_activations is not None:
             gate = self.last_gate_activations
             stats.update({
@@ -186,13 +183,13 @@ class GatedFeedForward(nn.Module):
                 "gate_activation_max": gate.max().item(),
                 "gate_activation_min": gate.min().item(),
             })
-            
+
             # Gate-specific statistics
             if self.glu_variant == "glu":
                 # For sigmoid gates, analyze how much gating is happening
                 stats["gate_near_zero"] = (gate < 0.1).float().mean().item()
                 stats["gate_near_one"] = (gate > 0.9).float().mean().item()
-        
+
         if self.last_gated_activations is not None:
             gated = self.last_gated_activations
             stats.update({
@@ -202,7 +199,7 @@ class GatedFeedForward(nn.Module):
                 "gated_activation_min": gated.min().item(),
                 "gated_near_zero": (gated.abs() < 1e-6).float().mean().item(),
             })
-        
+
         return stats
 
     def compute_gate_effectiveness(self) -> dict[str, float]:
@@ -213,20 +210,20 @@ class GatedFeedForward(nn.Module):
         """
         if self.last_main_activations is None or self.last_gate_activations is None:
             return {}
-        
+
         main = self.last_main_activations
         gate = self.last_gate_activations
         gated = main * gate
-        
+
         # Compute how much the gate changes the activations
         gate_effect = torch.abs(gated - main).mean()
         main_magnitude = torch.abs(main).mean()
-        
+
         stats = {
             "gate_effect_ratio": (gate_effect / (main_magnitude + 1e-8)).item(),
             "gate_variance": gate.var().item(),
         }
-        
+
         # Information flow analysis
         # How much information is passed vs. blocked
         if self.glu_variant == "glu":
@@ -237,7 +234,7 @@ class GatedFeedForward(nn.Module):
                 "information_passed_ratio": info_passed,
                 "information_blocked_ratio": info_blocked,
             })
-        
+
         return stats
 
     def reset_parameters(self) -> None:
@@ -246,7 +243,7 @@ class GatedFeedForward(nn.Module):
         nn.init.xavier_uniform_(self.linear_main.weight)
         nn.init.xavier_uniform_(self.linear_gate.weight)
         nn.init.xavier_uniform_(self.linear_out.weight)
-        
+
         # Zero initialization for biases
         if self.linear_main.bias is not None:
             nn.init.zeros_(self.linear_main.bias)

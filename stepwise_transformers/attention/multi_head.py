@@ -14,7 +14,7 @@ import torch.nn as nn
 
 class MultiHeadAttention(nn.Module):
     """Multi-head attention with educational features and visualization support.
-    
+
     This implementation leverages PyTorch's optimized MultiheadAttention
     module while adding comprehensive logging and visualization capabilities
     for learning purposes.
@@ -45,7 +45,7 @@ class MultiHeadAttention(nn.Module):
             ValueError: If d_model is not divisible by n_heads or parameters are invalid.
         """
         super().__init__()
-        
+
         if d_model <= 0:
             raise ValueError(f"d_model must be positive, got {d_model}")
         if n_heads <= 0:
@@ -54,12 +54,12 @@ class MultiHeadAttention(nn.Module):
             raise ValueError(f"d_model ({d_model}) must be divisible by n_heads ({n_heads})")
         if not 0 <= dropout <= 1:
             raise ValueError(f"dropout must be in [0, 1], got {dropout}")
-            
+
         self.d_model = d_model
         self.n_heads = n_heads
         self.head_dim = d_model // n_heads
         self.batch_first = batch_first
-        
+
         # Use PyTorch's optimized MultiheadAttention
         self.multihead_attn = nn.MultiheadAttention(
             embed_dim=d_model,
@@ -70,7 +70,7 @@ class MultiHeadAttention(nn.Module):
             vdim=vdim,
             batch_first=batch_first,
         )
-        
+
         # For storing attention weights for visualization
         self.last_attention_weights: Optional[torch.Tensor] = None
 
@@ -108,15 +108,19 @@ class MultiHeadAttention(nn.Module):
         if self.batch_first:
             batch_size, seq_len, feature_dim = query.shape
             if feature_dim != self.d_model:
-                raise ValueError(f"Query feature dimension {feature_dim} doesn't match d_model {self.d_model}")
+                raise ValueError(
+                    f"Query feature dimension {feature_dim} doesn't match d_model {self.d_model}"
+                )
         else:
             seq_len, batch_size, feature_dim = query.shape
             if feature_dim != self.d_model:
-                raise ValueError(f"Query feature dimension {feature_dim} doesn't match d_model {self.d_model}")
+                raise ValueError(
+                    f"Query feature dimension {feature_dim} doesn't match d_model {self.d_model}"
+                )
 
         # Determine if we need attention weights
         return_weights = need_weights or store_attention
-        
+
         # Use PyTorch's optimized implementation
         output, attention_weights = self.multihead_attn(
             query=query,
@@ -127,14 +131,14 @@ class MultiHeadAttention(nn.Module):
             need_weights=return_weights,
             average_attn_weights=average_attn_weights,
         )
-        
+
         # Store attention weights for visualization if requested
         if store_attention and attention_weights is not None:
             self.last_attention_weights = attention_weights.detach()
-        
+
         # Return weights only if explicitly requested
         return_weights_tensor = attention_weights if need_weights else None
-        
+
         return output, return_weights_tensor
 
     def get_attention_weights(self) -> Optional[torch.Tensor]:
@@ -154,7 +158,7 @@ class MultiHeadAttention(nn.Module):
         """
         if self.last_attention_weights is None:
             return None
-            
+
         # If weights are averaged, we can't recover individual head weights
         # This would require a custom implementation to store non-averaged weights
         return self.last_attention_weights
@@ -167,7 +171,7 @@ class MultiHeadAttention(nn.Module):
         """
         if self.last_attention_weights is None:
             return {}
-            
+
         weights = self.last_attention_weights
         stats = {
             "attention_entropy": self._compute_attention_entropy(weights),
@@ -176,12 +180,12 @@ class MultiHeadAttention(nn.Module):
             "attention_std": weights.std().item(),
             "attention_sparsity": (weights < 0.01).float().mean().item(),
         }
-        
+
         return stats
 
     def _compute_attention_entropy(self, weights: torch.Tensor) -> float:
         """Compute the entropy of attention weights.
-        
+
         Higher entropy indicates more distributed attention.
         """
         # Add small epsilon to avoid log(0)
