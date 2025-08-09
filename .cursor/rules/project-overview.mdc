@@ -1,58 +1,97 @@
-# Stepwise Transformers Learning with MLflow
+# Stepwise Transformers Project Overview
 
-This project is dedicated to learning about transformers step by step through interactive MLflow experiments. The goal is to create an educational application that guides users through transformer concepts, implementations, and experiments using MLflow for experiment tracking and visualization.
+This project implements a complete transformer architecture with comprehensive ClearML integration for learning and experimentation.
 
-## Project Structure
-- `src/` - Source code for transformer implementations and MLflow experiments
-- `experiments/` - MLflow experiment configurations and results
-- `tests/` - Unit tests for transformer components and experiments
-- `docs/` - Documentation and learning notes
-- `data/` - Sample datasets for training and testing
-- `examples/` - Interactive examples and demonstrations
-- `models/` - Saved transformer models and checkpoints
-- `artifacts/` - MLflow artifacts including visualizations and logs
+## Project Goals
 
-## Learning Objectives
-1. Build interactive MLflow experiments for learning transformers
-2. Implement transformer components with experiment tracking
-3. Create interactive tutorials and experiments with MLflow
-4. Provide real-time model training and evaluation tracking
-5. Enable hands-on exploration of transformer concepts through experiments
+- **Learning Focus**: Interactive exploration of transformer architecture and attention mechanisms
+- **ClearML Mastery**: Demonstrate all major ClearML features for experiment tracking
+- **Educational**: Step-by-step understanding of neural network concepts
+- **Production Ready**: Clean, maintainable code following Python best practices
 
-## Key Features
-- Interactive transformer component experiments with MLflow
-- Real-time attention visualization and tracking
-- Step-by-step tutorial system with experiment logging
-- Live model training interface with MLflow metrics
-- Interactive mathematical explanations with experiment tracking
-- Progress tracking and achievements through MLflow
-- Export capabilities for experiments and visualizations
+## Flat Python Structure
 
-## MLflow Experiment Components
-- Main experiment manager for transformer learning
-- Component library experiments with parameter tracking
-- Interactive tutorials with progress logging
-- Model builder experiments with configuration tracking
-- Training and evaluation experiments with metrics
-- Visualization experiments with artifact logging
-- Help and documentation with experiment examples
+```
+stepwise-transformers/
+├── attention.py              # Scaled dot-product and multi-head attention
+├── positional_encoding.py    # Sinusoidal and learned positional encoding
+├── feed_forward.py          # Position-wise and gated feed-forward networks
+├── transformer_layers.py    # Encoder and decoder layer implementations
+├── transformer.py           # Complete transformer model
+├── clearml_utils.py         # ClearML integration utilities
+├── data_utils.py            # Data processing and tokenization
+├── train.py                 # Training script with ClearML logging
+├── main.py                  # CLI entry point
+├── config/
+│   └── default_config.json  # Model and training configuration
+├── requirements.txt         # Dependencies
+└── README.md               # Project documentation
+```
 
-## Experiment Management
-- MLflow experiment tracking and versioning
-- Real-time metric logging and visualization
-- Model artifact management and versioning
-- Experiment comparison and analysis tools
-- Automated experiment reproducibility
-- Collaborative experiment sharing
+## ClearML Features Showcase
 
-## Interactive Features
-- Real-time experiment monitoring with MLflow UI
-- Interactive parameter adjustment with live tracking
-- Component testing with experiment logging
-- Data visualization with MLflow artifacts
-- Progress tracking through experiment completion
-- Export capabilities for results and visualizations
-description:
-globs:
-alwaysApply: false
----
+### Experiment Tracking
+- **Task Management**: Automatic experiment creation and organization
+- **Hyperparameter Logging**: Track all model and training parameters
+- **Metric Visualization**: Real-time training curves and validation metrics
+- **Resource Monitoring**: GPU utilization, memory usage, and system metrics
+
+### Model Management
+- **Model Registry**: Version control for transformer architectures
+- **Checkpoint Management**: Automatic model saving and loading
+- **Artifact Storage**: Attention heatmaps, training logs, and visualizations
+- **Reproducibility**: Complete experiment snapshots for replication
+
+### Advanced Logging
+- **Attention Heatmaps**: Visualize attention patterns across layers
+- **Gradient Norms**: Monitor training stability and convergence
+- **Weight Distributions**: Track model parameter evolution
+- **Custom Metrics**: Learning rate schedules, loss breakdowns
+
+### Experiment Organization
+- **Project Hierarchy**: Organize experiments by model type and dataset
+- **Tagging System**: Categorize experiments for easy comparison
+- **Experiment Comparison**: Side-by-side analysis of different configurations
+- **Collaboration**: Share experiments and results with team members
+
+## Transformer Architecture Features
+
+### Core Components
+- **Multi-Head Attention**: Configurable number of attention heads
+- **Positional Encoding**: Both sinusoidal and learned variants
+- **Feed-Forward Networks**: Standard and gated linear unit variants
+- **Layer Normalization**: Pre-norm and post-norm configurations
+- **Residual Connections**: Proper gradient flow optimization
+
+### Learning Features
+- **Attention Visualization**: Real-time attention pattern analysis
+- **Gradient Monitoring**: Track vanishing/exploding gradient issues
+- **Layer Analysis**: Individual layer performance metrics
+- **Training Dynamics**: Learning rate scheduling and optimization insights
+
+## Technology Stack
+
+- **PyTorch**: Deep learning framework for model implementation
+- **ClearML**: Comprehensive experiment tracking and model management
+- **NumPy**: Numerical computations and array operations
+- **Matplotlib/Seaborn**: Attention visualization and plotting
+- **Rich**: Beautiful CLI interfaces and progress tracking
+
+## Development Principles
+
+- **Flat Structure**: No nested packages - direct file imports
+- **ClearML First**: All experiments automatically tracked and logged
+- **Educational**: Extensive logging and visualization for learning
+- **Modular**: Each component can be studied and modified independently
+- **Production Ready**: Clean code following Python best practices
+
+## Learning Path
+
+1. **Start Simple**: Basic attention mechanism implementation
+2. **Build Up**: Add positional encoding and feed-forward networks
+3. **Complete Model**: Full transformer with encoder/decoder stacks
+4. **ClearML Integration**: Comprehensive experiment tracking
+5. **Advanced Features**: Attention visualization and analysis
+6. **Experimentation**: Try different architectures and hyperparameters
+
+This project serves as both a learning tool for transformer architecture and a showcase of ClearML's powerful experiment tracking capabilities.
